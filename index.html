@@ -7,35 +7,148 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
             line-height: 1.6;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #333;
         }
-        h1 { color: #333; }
-        h2 { color: #666; margin-top: 30px; }
+        h1 { color: #1a1a1a; }
+        h2 { color: #2a2a2a; margin-top: 30px; }
+        h3 { color: #444; margin-top: 20px; }
+        .notice {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            margin: 20px 0;
+        }
+        .important {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 12px 16px;
+            margin: 20px 0;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
-    <h1>NoCentral Support</h1>
-    
-    <p><strong>Contact:</strong> bradley.jim@gmail.com</p>
-    
-    <h2>Frequently Asked Questions</h2>
-    
-    <h3>What devices are supported?</h3>
-    <p>iOS 16+ and macOS Taho 26.3.1</p>
-    
-    <h3>Does this work with HPE InstantOn?</h3>
-    <p>No, NoCentral only works with Aruba IAP clusters running AOS 8.10-8.13.</p>
-    
-    <h3>Do I need an Aruba Central subscription?</h3>
-    <p>No, NoCentral works directly with your Virtual Controller over your local network.</p>
-    
-    <h3>How do I connect to my Virtual Controller?</h3>
-    <p>Enter your VC's IP address, username, and password. NoCentral will securely store credentials in your system Keychain.</p>
-    
-    <h2>Technical Support</h2>
-    <p>For technical support or bug reports, email <a href="mailto:bradley.jim@gmail.com">bradley.jim@gmail.com</a></p>
+
+<h1>NoCentral Support</h1>
+
+<div class="notice">
+    <strong>Note:</strong> NoCentral is developed and maintained by a single network engineer as a side project. Support is provided on a best-effort basis with no guaranteed response time.
+</div>
+
+<h2>Contact</h2>
+<p><strong>Email:</strong> <a href="mailto:bradley.jim@gmail.com">bradley.jim@gmail.com</a><br>
+<strong>Typical response time:</strong> 1-2 weeks for non-critical issues<br>
+<strong>Priority:</strong> Critical bugs affecting core functionality first, then everything else</p>
+
+<h2>Before Contacting Support</h2>
+<p>Please verify the following first:</p>
+<ul>
+    <li>Aruba IAP cluster is running AOS 8 (versions 8.10-8.13) — check with <code>show version</code></li>
+    <li>Your AP model is AP-3xx, AP-5xx, or AP-6xx series</li>
+    <li>REST API is enabled on your Virtual Controller (<code>allow-rest-api</code> + <code>commit apply</code>)</li>
+    <li>You can reach the VC IP from your iOS/macOS device on port 4343 (HTTPS)</li>
+    <li>Your credentials work via the VC web interface first</li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>What devices are supported?</h3>
+<p>iOS 16+ and macOS Tahoe 26.3.1 or later.</p>
+
+<h3>Does this work with HPE InstantOn?</h3>
+<p>No. NoCentral only works with Aruba IAP clusters running AOS 8 (versions 8.10-8.13). HPE InstantOn uses a completely different API and is not supported.</p>
+
+<h3>Does this work with Campus Controllers or Mobility Conductors?</h3>
+<p>Not yet. Current version supports Aruba Instant APs (IAP) only. Campus Controller support is planned for a future release with no ETA.</p>
+
+<h3>Do I need an Aruba Central subscription?</h3>
+<p>No. NoCentral works directly with your Virtual Controller over your local network without any cloud dependencies.</p>
+
+<h3>How do I connect to my Virtual Controller?</h3>
+<p>Enter your VC's IP address, username, and password. NoCentral will securely store credentials in your system Keychain. Default credentials are typically <code>admin</code> / <code>admin</code> unless you've changed them.</p>
+
+<h2>Common Issues</h2>
+
+<h3>Can't connect to Virtual Controller</h3>
+<ul>
+    <li>Verify REST API is enabled: <code>allow-rest-api</code> then <code>commit apply</code></li>
+    <li>Check that VC IP is reachable on port 4343 (HTTPS)</li>
+    <li>Self-signed certificates are handled automatically — no manual trust needed</li>
+    <li>Ensure you're connecting to the master IAP (look for * next to IP in <code>show aps</code>)</li>
+</ul>
+
+<h3>Login fails with correct credentials</h3>
+<ul>
+    <li>Test credentials via VC web UI first (https://VC-IP:4343)</li>
+    <li>Sessions expire after 15 minutes of inactivity</li>
+    <li>If you changed the password recently, delete and re-add the site in NoCentral</li>
+</ul>
+
+<h3>Missing APs or incomplete data</h3>
+<ul>
+    <li>Connect to the master IAP, not a member AP</li>
+    <li>During cluster elections, some data may be temporarily unavailable</li>
+    <li>Offline APs won't show real-time stats</li>
+</ul>
+
+<h3>App crashes or freezes</h3>
+<ul>
+    <li>Force quit and restart the app</li>
+    <li>Verify your iOS/macOS version meets the minimum requirements</li>
+    <li>Very large clusters (100+ APs) may experience slower load times</li>
+</ul>
+
+<h2>Known Limitations</h2>
+
+<div class="important">
+    <strong>Triband APs:</strong> AP-6xx and AP-7xx series with three radios currently only show radio0 and radio1 statistics. Radio2 support is not yet implemented.
+</div>
+
+<ul>
+    <li>Large clusters (100+ APs): Some views may load slowly</li>
+    <li>Campus Controllers: Not supported (IAP only)</li>
+    <li>Mobility Conductors: Not supported (IAP only)</li>
+    <li>AOS 8.13 is the final version of AOS 8 — future compatibility depends on whether HPE releases AOS 9 or EOLs the platform</li>
+</ul>
+
+<h2>Bug Reports & Feature Requests</h2>
+
+<h3>Reporting Bugs</h3>
+<p>Email <a href="mailto:bradley.jim@gmail.com">bradley.jim@gmail.com</a> with:</p>
+<ul>
+    <li>iOS/macOS version</li>
+    <li>Aruba IAP model and AOS version</li>
+    <li>Detailed steps to reproduce the issue</li>
+    <li>Screenshots if applicable</li>
+</ul>
+
+<h3>Feature Requests</h3>
+<p>Feature requests are noted but no timeline is guaranteed. Current roadmap priorities:</p>
+<ol>
+    <li>Bug fixes for existing features</li>
+    <li>Additional IAP features (based on user feedback)</li>
+    <li>Campus Controller support (future, no ETA)</li>
+    <li>Aruba Central API support (future, no ETA)</li>
+</ol>
+
+<h2>Refunds</h2>
+<p>For refund requests, contact Apple Support directly. App Store refund policy applies.</p>
+
+<hr>
+
+<p style="color: #666; font-size: 0.9em; margin-top: 40px;">
+    <strong>Privacy:</strong> NoCentral does not collect any data from your use of the app. All credentials are stored locally in your device's Keychain.<br>
+    <strong>Last updated:</strong> April 2026
+</p>
+
 </body>
 </html>
