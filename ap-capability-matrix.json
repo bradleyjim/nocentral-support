@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "schema_notes": "NoCentral AP capability matrix. Data extracted verbatim from the HPE Aruba Networking WLAN Platforms Software Support Matrix, Instant 8.x columns only. Bump schema_version only when the shape of this file changes (new fields, renamed fields, etc.). Do NOT bump it for content-only refreshes from HPE — those bump matrix_revision and matrix_data_date instead.",
+
+  "matrix_source": {
+    "publisher": "HPE Aruba Networking",
+    "document_title": "WLAN Platforms Software Support Matrix",
+    "document_id": "a50011736ENW",
+    "matrix_revision": "Rev. 3",
+    "matrix_data_date": "2025-12-18",
+    "source_url_note": "Pulled directly from the HPE support portal by an SE. Document updates ad-hoc — no fixed release cadence. Jim's workflow: refresh PDF from portal, compare Rev number and data date, regenerate this file, commit.",
+    "extracted_from_page": 5,
+    "extraction_date": "2026-04-20"
+  },
+
+  "instant_8x_context": {
+    "final_release": "8.13",
+    "status": "final",
+    "notes": "HPE has announced 8.13 as the final Instant 8.x release. Every TBD max in this file will ultimately resolve to 8.13 (or earlier if HPE drops a platform mid-train). There is no 8.14 and there will not be. Features, bug fixes, and CVE patches beyond 8.13 land in AOS-10 only, which requires HPE Aruba Networking Central and is outside NoCentral's scope."
+  },
+
+  "nocentral_hardware_scope": {
+    "min_series": "3xx",
+    "max_series": "6xx",
+    "notes": "NoCentral supports AP-3xx through AP-6xx hardware only. Older models (2xx and earlier) are not applicable. Models outside this range should not appear in the matrix below — if the VC reports one, the Planner should treat it as out-of-scope rather than unsupported."
+  },
+
+  "tbd_semantics": {
+    "meaning": "Max version not yet decided by HPE. Literal — HPE may announce a cap at any point.",
+    "planner_interpretation": "For any train currently in existence (up to and including the instant_8x_final_release), TBD passes the max check. UI should display 'currently uncapped' rather than implying open-ended future support. Combine with instant_8x_context.final_release to show the effective ceiling: e.g., AP-505 max = TBD, effective ceiling = 8.13."
+  },
+
+  "unknown_model_handling": {
+    "guidance": "If the VC reports an AP model not present in this file AND within nocentral_hardware_scope, flag it as 'unknown — matrix update needed'. This is the canary signal that HPE has shipped a new AP and Jim needs to refresh the matrix. Do not assume sensible defaults — unknown means unknown."
+  },
+
+  "aos10_only_models_note": "Models listed on page 5 of the source matrix with N/A for Instant 8.x (AP-503R, AP-605R, AP-674, AP-725, AP-734, AP-735, AP-745, AP-754, AP-755, AP-763, AP-764, AP-765) are AOS-10-only hardware and cannot run Instant firmware. They are DELIBERATELY EXCLUDED from this file. If such a model appears in a VC cluster report, that is a hardware/licensing mismatch, not a version mismatch. The Planner should detect this case separately (by checking an out-of-band AOS-10-only model list) and surface a distinct message — remediation is platform migration to Central, not firmware upgrade or hardware replacement.",
+
+  "models": [
+    { "model": "AP-303",  "instant_min": "8.3.0.0",  "instant_max": "8.13" },
+    { "model": "AP-303H", "instant_min": "8.0.0.0",  "instant_max": "8.13" },
+    { "model": "AP-303P", "instant_min": "8.4.0.0",  "instant_max": "8.13" },
+    { "model": "AP-304",  "instant_min": "8.0.0.0",  "instant_max": "8.13" },
+    { "model": "AP-305",  "instant_min": "8.0.0.0",  "instant_max": "8.13" },
+    { "model": "AP-314",  "instant_min": "8.0.0.0",  "instant_max": "8.13" },
+    { "model": "AP-315",  "instant_min": "8.0.0.0",  "instant_max": "8.13" },
+    { "model": "AP-318",  "instant_min": "8.3.0.0",  "instant_max": "8.13" },
+    { "model": "AP-324",  "instant_min": "8.0.0.0",  "instant_max": "8.10" },
+    { "model": "AP-325",  "instant_min": "8.0.0.0",  "instant_max": "8.10" },
+    { "model": "AP-334",  "instant_min": "8.0.0.0",  "instant_max": "8.10" },
+    { "model": "AP-335",  "instant_min": "8.0.0.0",  "instant_max": "8.10" },
+    { "model": "AP-344",  "instant_min": "8.3.0.0",  "instant_max": "8.10" },
+    { "model": "AP-345",  "instant_min": "8.3.0.0",  "instant_max": "8.10" },
+    { "model": "AP-365",  "instant_min": "8.0.0.0",  "instant_max": "8.13" },
+    { "model": "AP-367",  "instant_min": "8.0.0.0",  "instant_max": "8.13" },
+    { "model": "AP-374",  "instant_min": "8.3.0.0",  "instant_max": "8.13" },
+    { "model": "AP-375",  "instant_min": "8.3.0.0",  "instant_max": "8.13" },
+    { "model": "AP-377",  "instant_min": "8.3.0.0",  "instant_max": "8.13" },
+    { "model": "AP-387",  "instant_min": "8.4.0.0",  "instant_max": "8.10" },
+    { "model": "AP-503",  "instant_min": "8.11.1.0", "instant_max": "TBD"  },
+    { "model": "AP-503H", "instant_min": "8.7.1.0",  "instant_max": "TBD"  },
+    { "model": "AP-504",  "instant_min": "8.6.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-505",  "instant_min": "8.6.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-505H", "instant_min": "8.7.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-514",  "instant_min": "8.4.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-515",  "instant_min": "8.4.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-518",  "instant_min": "8.7.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-534",  "instant_min": "8.5.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-535",  "instant_min": "8.5.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-555",  "instant_min": "8.5.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-565",  "instant_min": "8.7.1.0",  "instant_max": "TBD"  },
+    { "model": "AP-567",  "instant_min": "8.7.1.0",  "instant_max": "TBD"  },
+    { "model": "AP-574",  "instant_min": "8.7.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-575",  "instant_min": "8.7.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-577",  "instant_min": "8.7.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-584",  "instant_min": "8.10.0.1", "instant_max": "TBD"  },
+    { "model": "AP-585",  "instant_min": "8.10.0.1", "instant_max": "TBD"  },
+    { "model": "AP-587",  "instant_min": "8.10.0.1", "instant_max": "TBD"  },
+    { "model": "AP-605H", "instant_min": "8.12.0.0", "instant_max": "TBD"  },
+    { "model": "AP-615",  "instant_min": "8.11.0.0", "instant_max": "TBD"  },
+    { "model": "AP-634",  "instant_min": "8.11.2.0", "instant_max": "TBD"  },
+    { "model": "AP-635",  "instant_min": "8.9.0.0",  "instant_max": "TBD"  },
+    { "model": "AP-654",  "instant_min": "8.11.2.0", "instant_max": "TBD"  },
+    { "model": "AP-655",  "instant_min": "8.10.0.0", "instant_max": "TBD"  }
+  ]
+}
