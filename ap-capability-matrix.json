@@ -10,7 +10,7 @@
     "matrix_data_date": "2025-12-18",
     "source_url_note": "Pulled directly from the HPE support portal by an SE. Document updates ad-hoc — no fixed release cadence. Jim's workflow: refresh PDF from portal, compare Rev number and data date, regenerate this file, commit.",
     "extracted_from_page": 5,
-    "extraction_date": "2026-04-20"
+    "extraction_date": "2026-04-21"
   },
 
   "instant_8x_context": {
@@ -81,6 +81,9 @@
     { "model": "AP-634",  "instant_min": "8.11.2.0", "instant_max": "TBD"  },
     { "model": "AP-635",  "instant_min": "8.9.0.0",  "instant_max": "TBD"  },
     { "model": "AP-654",  "instant_min": "8.11.2.0", "instant_max": "TBD"  },
-    { "model": "AP-655",  "instant_min": "8.10.0.0", "instant_max": "TBD"  }
+    { "model": "AP-655",  "instant_min": "8.10.0.0", "instant_max": "TBD"  },
+    { "model": "AP-675",  "instant_min": "8.12.0.0", "instant_max": "TBD"  },
+    { "model": "AP-677",  "instant_min": "8.12.0.0", "instant_max": "TBD"  },
+    { "model": "AP-679",  "instant_min": "8.12.0.0", "instant_max": "TBD"  }
   ]
 }
