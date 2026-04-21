@@ -26,29 +26,7 @@ jobs:
         run: pip install pdfplumber requests
 
       - name: Download HPE support matrix PDF
-        run: |
-          curl -L \
-            --http1.1 \
-            --retry 3 \
-            --retry-delay 10 \
-            --retry-connrefused \
-            --connect-timeout 30 \
-            --max-time 180 \
-            --fail \
-            -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
-            -o hpe-matrix.pdf \
-            https://www.hpe.com/psnow/doc/a50011736enw
-          size=$(stat -c%s hpe-matrix.pdf)
-          echo "Downloaded PDF size: $size bytes"
-          if [ "$size" -lt 102400 ]; then
-            echo "ERROR: PDF is suspiciously small ($size bytes). Aborting."
-            exit 1
-          fi
-          file hpe-matrix.pdf | grep -q "PDF document" || {
-            echo "ERROR: Downloaded file is not a PDF."
-            file hpe-matrix.pdf
-            exit 1
-          }
+        run: python scripts/download_matrix_pdf.py
 
       - name: Run extractor
         run: python scripts/extract_matrix.py
