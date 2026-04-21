@@ -1,0 +1,67 @@
+name: Refresh AP Capability Matrix
+
+on:
+  # Run on the 1st of every month at 06:00 UTC
+  schedule:
+    - cron: '0 6 1 * *'
+  # Allow manual triggering from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pdfplumber requests
+
+      - name: Download HPE support matrix PDF
+        run: |
+          curl -L \
+            --retry 3 \
+            --retry-delay 10 \
+            --connect-timeout 30 \
+            --max-time 120 \
+            -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+            -o hpe-matrix.pdf \
+            https://www.hpe.com/psnow/doc/a50011736enw
+          # Sanity check: PDF should be at least 100KB
+          size=$(stat -c%s hpe-matrix.pdf)
+          echo "Downloaded PDF size: $size bytes"
+          if [ "$size" -lt 102400 ]; then
+            echo "ERROR: PDF is suspiciously small ($size bytes). Aborting."
+            exit 1
+          fi
+          # Sanity check: must actually be a PDF
+          file hpe-matrix.pdf | grep -q "PDF document" || {
+            echo "ERROR: Downloaded file is not a PDF."
+            file hpe-matrix.pdf
+            exit 1
+          }
+
+      - name: Run extractor
+        run: python scripts/extract_matrix.py
+
+      - name: Commit updated matrix if changed
+        run: |
+          if git diff --quiet ap-capability-matrix.json; then
+            echo "No changes detected — matrix is up to date."
+            exit 0
+          fi
+
+          echo "Changes detected. Committing..."
+          git config user.name "nocentral-matrix-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ap-capability-matrix.json
+          git commit -m "matrix: automated refresh $(date -u +%Y-%m-%d)"
+          git push
