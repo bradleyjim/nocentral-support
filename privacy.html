@@ -39,10 +39,10 @@
 <h1>NoCentral Privacy Policy</h1>
 
 <p><strong>Effective Date:</strong> April 14, 2026<br>
-<strong>Last Updated:</strong> April 15, 2026</p>
+<strong>Last Updated:</strong> April 22, 2026</p>
 
 <div class="highlight">
-    <strong>Summary:</strong> NoCentral does not collect or transmit any of your personal data or network information. On iOS, the app may request your device location to center the map feature (optional, never stored or transmitted). The app downloads public IEEE manufacturer databases for device identification. Everything else stays on your device and your local network.
+    <strong>Summary:</strong> NoCentral does not collect or transmit any of your personal data or network information. On iOS, the app may request your device location to center the map feature (optional, never stored or transmitted). The app downloads public IEEE manufacturer databases for device identification, and fetches an AP compatibility matrix from this support site to keep hardware compatibility data current. Everything else stays on your device and your local network.
 </div>
 
 <h2>Information Collection and Use</h2>
@@ -88,6 +88,7 @@
         This cached data is derived from your Virtual Controller responses and stored locally to reduce API calls and improve app performance.
     </li>
     <li><strong>IEEE OUI database cache:</strong> Downloaded manufacturer identification databases (see Network Communication section)</li>
+    <li><strong>AP compatibility matrix cache:</strong> A downloaded copy of the AP hardware compatibility database (see Network Communication section)</li>
 </ul>
 <p><strong>Important:</strong> All of this data is stored exclusively on your device. It never leaves your device and is not accessible to the developer or any third party. Deleting a site from the app removes all associated data including any AP coordinates you entered. Deleting the app removes everything.</p>
 
@@ -113,11 +114,21 @@
     </li>
     <li><strong>Frequency:</strong> Weekly automatic updates</li>
     <li><strong>Data transmitted:</strong> Standard HTTPS GET requests only — no user data, device identifiers, or MAC addresses from your network are sent</li>
-    <li><strong>Storage:</strong> Downloaded databases are cached locally in the app's caches directory</li>
+    <li><strong>Storage:</strong> Downloaded databases are cached locally in the app's documents directory</li>
     <li><strong>Usage:</strong> Manufacturer lookups are performed entirely offline using the cached databases</li>
 </ul>
-
 <p><strong>Important:</strong> No MAC addresses from your network are ever transmitted to IEEE or any external service. The OUI databases are public reference data downloaded once and cached for offline use. Your network data stays on your device.</p>
+
+<h3>AP Compatibility Matrix (Internet)</h3>
+<p>NoCentral downloads an AP hardware compatibility matrix from this support site to keep firmware compatibility data current:</p>
+<ul>
+    <li><strong>Source:</strong> <code>https://bradleyjim.github.io/nocentral-support/ap-capability-matrix.json</code></li>
+    <li><strong>Frequency:</strong> Once per app launch, only if a newer version is available</li>
+    <li><strong>Data transmitted:</strong> Standard HTTPS GET request only — no user data, device identifiers, network information, or credentials are sent</li>
+    <li><strong>Storage:</strong> The matrix is cached locally in the app's documents directory</li>
+    <li><strong>Usage:</strong> Used offline to display firmware support ranges and flag constrained AP models in the Upgrade Planner</li>
+</ul>
+<p><strong>Important:</strong> This request contains no information about you, your network, or your devices. It is equivalent to downloading a public JSON file from a website.</p>
 
 <h3>No Analytics or Tracking</h3>
 <p>NoCentral does not use:</p>
@@ -151,7 +162,7 @@
     <li><strong>None of these coordinates are ever transmitted</strong> to any server or third party</li>
 </ul>
 
-<p><strong>macOS behavior:</strong> macOS devices do not access device location. The map always centers on the continental United States until you manually pan/zoom.</p>
+<p><strong>macOS behaviour:</strong> macOS devices do not access device location. The map always centers on the continental United States until you manually pan/zoom.</p>
 
 <h2>Data Security</h2>
 
@@ -182,6 +193,16 @@
     <li><strong>Data transmitted:</strong> Standard HTTPS GET requests only (no personal data, no device identifiers, no MAC addresses from your network)</li>
     <li><strong>Frequency:</strong> Weekly automatic updates</li>
     <li><strong>Privacy impact:</strong> None — this is equivalent to downloading a public file from a website</li>
+</ul>
+
+<h3>NoCentral Support Site (GitHub Pages)</h3>
+<p>NoCentral fetches an AP hardware compatibility matrix from the developer's support site:</p>
+<ul>
+    <li><strong>Service:</strong> GitHub Pages (<code>bradleyjim.github.io</code>), hosted by GitHub, Inc.</li>
+    <li><strong>Purpose:</strong> Download the current AP firmware compatibility matrix for use in the Upgrade Planner feature</li>
+    <li><strong>Data transmitted:</strong> Standard HTTPS GET request only (no personal data, no device identifiers, no network information)</li>
+    <li><strong>Frequency:</strong> Once per app launch, only when a newer matrix version is available</li>
+    <li><strong>Privacy impact:</strong> None beyond a standard web request. GitHub's own privacy policy applies to their server logs: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank">GitHub Privacy Statement</a></li>
 </ul>
 
 <h3>No Other Third-Party Services</h3>
