@@ -76,6 +76,29 @@
 <h3>How do I connect to my Virtual Controller?</h3>
 <p>Enter your VC's IP address, username, and password. NoCentral will securely store credentials in your system Keychain.</p>
 
+<h3>What does the amber warning triangle on an AP card mean?</h3>
+<p>An amber triangle indicates a <strong>constrained AP model</strong> — one that has a known firmware ceiling below the final AOS 8 release (8.13). The AP is not broken or offline; it simply cannot run firmware above its supported maximum train.</p>
+<p>Tap the AP card to open its detail view. The <strong>Version Support</strong> section shows the exact minimum and maximum firmware versions for that model. If your cluster is running firmware within that range, the AP is fully operational. If you are planning a firmware upgrade, check the <strong>Upgrade Planner</strong> tab first.</p>
+
+<h3>What is the Upgrade Planner?</h3>
+<p>The <strong>Upgrade</strong> tab helps you understand the impact of a firmware upgrade on your AP fleet before you commit to it.</p>
+<ul>
+    <li><strong>Current State</strong> — shows how many APs in your cluster have known firmware constraints</li>
+    <li><strong>Firmware Upgrade Simulator</strong> — select a target firmware train (8.10, 8.11, 8.12, or 8.13) and see immediately which APs would remain supported and which would not</li>
+    <li><strong>Remediation Options</strong> — for any AP that would be left behind, three options are outlined: replace it with a compatible model, isolate it on a separate cluster running a supported firmware train, or retire and remove it from the allowed-AP list</li>
+</ul>
+<p>The compatibility data is bundled with the app and updated automatically in the background when a newer version is available.</p>
+
+<h3>What is the Offline Clients section in the Clients tab?</h3>
+<p>NoCentral keeps a record of wireless clients it has seen connected to your cluster. Clients that were previously online but are no longer present appear in an <strong>Offline</strong> section at the bottom of the Clients tab, showing when they were last seen, which AP they were connected to, and which SSID they used.</p>
+<p>This is useful for tracking down devices that have left the network, investigating whether a specific device has ever connected, or identifying stale entries that are no longer relevant.</p>
+<ul>
+    <li>Client history is stored only on your device — it never leaves your device</li>
+    <li>The retention period is configurable in <strong>Settings → Client History</strong> (default 90 days)</li>
+    <li>Individual entries can be deleted by swiping left on iOS, or via the context menu on macOS</li>
+    <li>All offline clients for a site can be cleared at once from the section header menu</li>
+</ul>
+
 <h2>Common Issues</h2>
 
 <h3>Can't connect to Virtual Controller</h3>
@@ -117,6 +140,7 @@
     <li>Large clusters: may load slowly, please be patient</li>
     <li>Campus Controllers: Not supported (IAP only)</li>
     <li>Mobility Conductors: Not supported (IAP only)</li>
+    <li>AP compatibility matrix covers most AP-3xx and AP-5xx models. Coverage for very new or discontinued models may be incomplete.</li>
     <li>At the time of writing, AOS 8.13 is the final major version of AOS 8 — future development and compatibility depends on HPE.</li>
 </ul>
 
@@ -146,7 +170,7 @@
 <hr>
 
 <p style="color: #666; font-size: 0.9em; margin-top: 40px;">
-    <strong>Privacy:</strong> NoCentral does not collect, store, or transmit your personal data or network information. On iOS, the app may request your device location to center the map feature (optional, never stored or transmitted). All credentials are stored locally in your device's Keychain. See our <a href="privacy.html">Privacy Policy</a> for full details.<br>
+    <strong>Privacy:</strong> NoCentral does not collect, store, or transmit your personal data or network information. On iOS, the app may request your device location to center the map feature (optional, never stored or transmitted). The app downloads a public AP compatibility database from this support site on launch — no personal data is transmitted. All credentials are stored locally in your device's Keychain. See our <a href="privacy.html">Privacy Policy</a> for full details.<br>
     <strong>Last updated:</strong> April 2026
 </p>
 
