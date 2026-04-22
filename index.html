@@ -28,6 +28,12 @@
             padding: 12px 16px;
             margin: 20px 0;
         }
+        .tip {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 12px 16px;
+            margin: 20px 0;
+        }
         code {
             background: #f5f5f5;
             padding: 2px 6px;
@@ -40,8 +46,7 @@
 
 <h1>NoCentral Support</h1>
 
-<p><strong>Effective Date:</strong> April 14, 2026<br>
-<strong>Last Updated:</strong> April 22, 2026</p>
+<p><strong>Last Updated:</strong> April 22, 2026</p>
 
 <div class="notice">
     <strong>Note:</strong> NoCentral is developed and maintained by a single network engineer as a side project. Support is provided on a best-effort basis with no guaranteed response time.
@@ -132,6 +137,44 @@
     <li>Verify your iOS/macOS version meets the minimum requirements</li>
     <li>Very large clusters (100+ APs) may experience slower load times</li>
 </ul>
+
+<h3>Load failures, stalls, incomplete data, or API errors — adjusting the API call gap</h3>
+
+<p>NoCentral queries the Virtual Controller with a sequence of API calls during each load. The VC handles these calls one at a time, and on some clusters it can struggle to keep up, resulting in:</p>
+<ul>
+    <li>API errors appearing in <strong>Settings → Advanced Tuning → Error Log</strong></li>
+    <li>The loading bar stalling or stopping before completion, with or without errors</li>
+    <li>Incomplete data — missing APs, clients, or radio statistics after a load</li>
+    <li>In rare cases, the app becoming unresponsive and requiring a force quit</li>
+</ul>
+
+<p>All of these symptoms suggest the VC is being overwhelmed by the rate of API requests. The fix is to introduce a deliberate pause between calls.</p>
+
+<div class="tip">
+    <strong>Where to find it:</strong> Settings → Advanced Tuning → API Call Gap. The slider adjusts the delay between API calls from 0ms to 150ms and is saved per site.
+</div>
+
+<h4>Default values</h4>
+<ul>
+    <li><strong>0ms</strong> — default for standard (non-Central-managed) clusters. Tested clean on well-specified hardware.</li>
+    <li><strong>50ms</strong> — automatically applied for Aruba Central-managed clusters, which have additional overhead from the Central management plane.</li>
+</ul>
+
+<h4>Suggested approach</h4>
+<p>If you are seeing any of the symptoms above, increase the gap incrementally and retry until the load completes cleanly:</p>
+<ol>
+    <li>Try <strong>50ms</strong> first</li>
+    <li>If still failing, increase to <strong>100ms</strong></li>
+    <li>If still failing, increase to <strong>150ms</strong> (maximum)</li>
+</ol>
+<p>Use the lowest value that works reliably for your cluster. There is no universally correct setting — the right value depends on your specific cluster.</p>
+
+<h4>Why some clusters need a larger gap</h4>
+<p>The Virtual Controller runs on the same hardware as one of your APs. The processing power of the VC AP directly affects how quickly it can respond to API requests. A cluster where the VC role is held by an older, lower-powered model (such as an AP-303) has significantly less headroom than one running on a current high-performance model (such as an AP-555). Larger clusters make this more pronounced, as there is more data for the VC to process and return.</p>
+
+<div class="notice">
+    <strong>Note:</strong> This is based on observed behaviour across a small number of test environments, not formally documented Aruba specifications. HPE Aruba's own guidance recommends IAP VC clusters do not exceed 128 APs in a single L2 cluster due to general performance constraints — NoCentral's API load is one additional factor within that broader picture. Observe carefully and use whatever value works reliably for your environment.
+</div>
 
 <h2>Known Limitations</h2>
 
