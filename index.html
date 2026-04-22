@@ -84,6 +84,10 @@
 <h3>How do I connect to my Virtual Controller?</h3>
 <p>Enter your VC's IP address, username, and password. NoCentral will securely store credentials in your system Keychain.</p>
 
+<h3>Does NoCentral access my location on macOS?</h3>
+<p>The native macOS app does not request location access. The RF Location map centers on the continental United States until you manually pan or zoom.</p>
+<p>On Apple Silicon Macs, if you have installed the iOS version of NoCentral from the App Store, macOS may prompt for location permission depending on your system configuration. If this occurs, location is determined by macOS using available network signals — not GPS hardware — and is used only to center the map. It is never stored or transmitted. You can revoke access at any time in System Settings → Privacy &amp; Security → Location Services → NoCentral.</p>
+
 <h3>What does the amber warning triangle on an AP card mean?</h3>
 <p>An amber triangle indicates a <strong>constrained AP model</strong> — one that has a known firmware ceiling below the final AOS 8 release (8.13). The AP is not broken or offline; it simply cannot run firmware above its supported maximum train.</p>
 <p>Tap the AP card to open its detail view. The <strong>Version Support</strong> section shows the exact minimum and maximum firmware versions for that model. If your cluster is running firmware within that range, the AP is fully operational. If you are planning a firmware upgrade, check the <strong>Upgrade Planner</strong> tab first.</p>
@@ -216,7 +220,7 @@
 <hr>
 
 <p style="color: #666; font-size: 0.9em; margin-top: 40px;">
-    <strong>Privacy:</strong> NoCentral does not collect, store, or transmit your personal data or network information. On iOS, the app may request your device location to center the map feature (optional, never stored or transmitted). The app downloads a public AP compatibility database from this support site on launch — no personal data is transmitted. All credentials are stored locally in your device's Keychain. See our <a href="privacy.html">Privacy Policy</a> for full details.<br>
+    <strong>Privacy:</strong> NoCentral does not collect, store, or transmit your personal data or network information. On iOS, and in some configurations on Apple Silicon Macs, the app may request your device location to center the map feature (optional, never stored or transmitted). The app downloads a public AP compatibility database from this support site on launch — no personal data is transmitted. All credentials are stored locally in your device's Keychain. See our <a href="privacy.html">Privacy Policy</a> for full details.<br>
     <strong>Last updated:</strong> April 2026
 </p>
 
