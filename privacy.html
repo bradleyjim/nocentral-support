@@ -42,7 +42,7 @@
 <strong>Last Updated:</strong> April 22, 2026</p>
 
 <div class="highlight">
-    <strong>Summary:</strong> NoCentral does not collect or transmit any of your personal data or network information. On iOS, the app may request your device location to center the map feature (optional, never stored or transmitted). The app downloads public IEEE manufacturer databases for device identification, and fetches an AP compatibility matrix from this support site to keep hardware compatibility data current. Everything else stays on your device and your local network.
+    <strong>Summary:</strong> NoCentral does not collect or transmit any of your personal data or network information. On iOS, and in some configurations on Apple Silicon Macs, the app may request your device location to center the map feature (optional, never stored or transmitted). The app downloads public IEEE manufacturer databases for device identification, and fetches an AP compatibility matrix from this support site to keep hardware compatibility data current. Everything else stays on your device and your local network.
 </div>
 
 <h2>Information Collection and Use</h2>
@@ -139,18 +139,23 @@
     <li>Third-party SDKs that collect data</li>
 </ul>
 
-<h2>Location Data (iOS Only)</h2>
+<h2>Location Data</h2>
 
 <h3>Device Location Access</h3>
-<p>On iOS devices, NoCentral may request access to your device's location services for the following <strong>optional</strong> feature:</p>
+<p>NoCentral may request access to your device's location services for the following <strong>optional</strong> feature:</p>
 <ul>
-    <li><strong>Map centering:</strong> When you use the AP placement map feature, the app requests your current location to center the map on your position for convenience</li>
+    <li><strong>Map centering:</strong> When you use the AP placement map feature, the app may request your current location to center the map on your position for convenience</li>
     <li><strong>Frequency:</strong> Only when you open the map feature</li>
     <li><strong>Storage:</strong> Your device location is <strong>never stored</strong> — it's used only to center the map and then discarded immediately</li>
     <li><strong>Transmission:</strong> Your device location is <strong>never transmitted</strong> to any server or third party</li>
 </ul>
 
-<p><strong>Optional:</strong> You can deny location access in iOS Settings → NoCentral → Location. If denied, the map will center on the approximate center of the continental United States instead. The app functions normally without location access.</p>
+<h3>iOS</h3>
+<p>On iOS, the app prompts for location permission when you open the map feature. You can deny this in iOS Settings → NoCentral → Location. If denied, the map will center on the approximate center of the continental United States instead. The app functions normally without location access.</p>
+
+<h3>macOS</h3>
+<p>The native macOS app does not request location access. The map centers on the continental United States until you manually pan or zoom.</p>
+<p>On Apple Silicon Macs, if you have installed the iOS version of NoCentral from the App Store, macOS may prompt for location permission depending on your system configuration. If this occurs and you grant access, macOS determines your position using available network signals rather than GPS hardware — location is used only to center the map and is never stored or transmitted. You can revoke this at any time in System Settings → Privacy &amp; Security → Location Services → NoCentral.</p>
 
 <h3>AP Placement Coordinates (User-Entered)</h3>
 <p>When you use the "Place APs" feature to manually mark AP locations on the map:</p>
@@ -161,8 +166,6 @@
     <li>This center point is also stored <strong>only on your device</strong></li>
     <li><strong>None of these coordinates are ever transmitted</strong> to any server or third party</li>
 </ul>
-
-<p><strong>macOS behaviour:</strong> macOS devices do not access device location. The map always centers on the continental United States until you manually pan/zoom.</p>
 
 <h2>Data Security</h2>
 
@@ -231,7 +234,7 @@
     <li><strong>Access:</strong> You have full access to your data through the app's interface</li>
     <li><strong>Deletion:</strong> Delete individual sites within the app to remove all associated data (including AP coordinates), or delete the app entirely to remove everything</li>
     <li><strong>Export:</strong> Data can be exported from within the app (site configurations, reports)</li>
-    <li><strong>Location permissions:</strong> Manage in iOS Settings → NoCentral → Location (iOS only)</li>
+    <li><strong>Location permissions:</strong> Manage in iOS Settings → NoCentral → Location (iOS), or System Settings → Privacy &amp; Security → Location Services → NoCentral (macOS, if prompted)</li>
 </ul>
 
 <h3>No Data Portability Issues</h3>
