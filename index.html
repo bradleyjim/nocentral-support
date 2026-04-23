@@ -46,7 +46,7 @@
 
 <h1>NoCentral Support</h1>
 
-<p><strong>Last Updated:</strong> April 22, 2026</p>
+<p><strong>Last Updated:</strong> April 23, 2026</p>
 
 <div class="notice">
     <strong>Note:</strong> NoCentral is developed and maintained by a single network engineer as a side project. Support is provided on a best-effort basis with no guaranteed response time.
@@ -93,6 +93,40 @@
 
 <h3>How do I connect to my Virtual Controller?</h3>
 <p>Enter your VC's IP address, username, and password. NoCentral stores credentials securely in your system Keychain.</p>
+
+<h3>Why do some tabs return errors if I tap them too quickly after login?</h3>
+<p>NoCentral uses a centralised background API handler to load your site's data. When you log in, it orders and rate-limits a sequence of calls to the Virtual Controller — clients, APs, channel quality, RF neighbours, deny list, session details — so the VC isn't hit with parallel requests.</p>
+<p>The <strong>tab icons along the bottom of the screen are the progress indicator</strong>. They start dim and brighten as each tab's data arrives. Once every tab icon is lit, the initial load is complete.</p>
+<p>Tabs are allowed to reprioritise the API flow — tapping a tab tells the handler to jump that tab's data to the front of the queue. This is intentional and is what makes navigation feel responsive once the app is warmed up. During the <em>initial</em> load, however, it can interrupt the ordered sequence and cause one or more API calls to fail.</p>
+<p>You will know this has happened if you see:</p>
+<ul>
+    <li>A rapid <strong>"brrrrrp"</strong> burst of haptic feedback</li>
+    <li>The <strong>system tab error counter turning red</strong></li>
+    <li>Missing or incomplete data on one or more tabs</li>
+</ul>
+<div class="tip">
+    <strong>The fix:</strong> wait for all tab icons to brighten before tapping around. On a typical site this takes only a few seconds. Once the initial load is done, switching tabs and letting them reprioritise the queue works exactly as designed.
+</div>
+<p>If you have already triggered the error state, pull to refresh on any tab — or log out and back in — to restart a clean load sequence.</p>
+
+<h3>How accurate is RF Location?</h3>
+<p>RF Location is a <strong>probability estimator, not a precision locator</strong>. It does not put a pin on a neighbour AP or client the way GPS would. For each detected RF neighbour, it takes the RSSI values reported by your own APs and computes a range of likely distances and directions — a probable <em>area</em>, with a minimum and maximum bound, rather than a coordinate.</p>
+<p>All results are derived entirely from data returned by the installed, online, and responding APs. NoCentral has no other source of truth. Where multiple APs hear the same neighbour, their probability rings overlap; where the overlaps are tight, the estimate is tighter. Where they are loose, so is the answer.</p>
+
+<h4>What makes estimates better or worse</h4>
+<p>Accuracy depends almost entirely on your AP deployment, not on the app. Estimates improve when:</p>
+<ul>
+    <li><strong>More APs hear the same neighbour</strong> — two APs give a rough line, three or more begin to give a meaningful area</li>
+    <li><strong>Those APs are physically separated</strong> — neighbours heard only by APs clustered in one part of the building cannot be triangulated meaningfully, regardless of signal strength</li>
+    <li><strong>APs are installed uniformly</strong> — similar model family, similar mounting height, similar orientation. Mixed hardware and mixed mounting (ceiling vs. wall vs. desk vs. inside a closet) breaks the path-loss assumptions the calculation relies on</li>
+</ul>
+<p>Most real-world installations were designed for <strong>client coverage</strong>, not RF geolocation. APs are commonly placed for convenient cable runs, mounted behind obstructions, oriented inconsistently, or spaced unevenly. All of this is perfectly fine for serving Wi-Fi, and all of it reduces the precision of RF Location results. Expect your own site to fall into this category — it is the norm, not the exception.</p>
+
+<h4>How to read the results</h4>
+<p>Treat probability areas as <em>"this neighbour is more likely here than there,"</em> not as a fixed pin. A tight, well-defined peak means the geometry of your install happened to work in your favour for that particular neighbour. A broad, fuzzy area means the data simply does not support a tighter answer, and no amount of computation will change that.</p>
+<div class="tip">
+    <strong>Best use:</strong> RF Location is most useful for narrowing a search — pointing you at the right floor, the right wing, or the right side of a building — before walking the area with a handheld scanner to pin down the exact source.
+</div>
 
 <h3>Does NoCentral access my location on macOS?</h3>
 <p>The native macOS app does not request location access. The RF Location map centers on the continental United States until you manually pan or zoom.</p>
