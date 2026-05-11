@@ -39,11 +39,16 @@
 <h1>NoCentral Privacy Policy</h1>
 
 <p><strong>Effective Date:</strong> April 14, 2026<br>
-<strong>Last Updated:</strong> April 22, 2026</p>
+<strong>Last Updated:</strong> May 11, 2026</p>
 
 <div class="highlight">
-    <strong>Summary:</strong> NoCentral does not collect or transmit any of your personal data or network information. On iOS, and in some configurations on Apple Silicon Macs, the app may request your device location to center the map feature (optional, never stored or transmitted). The app downloads public IEEE manufacturer databases for device identification, and fetches an AP compatibility matrix from this support site to keep hardware compatibility data current. Everything else stays on your device and your local network.
+    <strong>Summary:</strong> NoCentral does not collect or transmit any of your personal data or network information. The app may request your device location to centre the map feature (optional, never stored or transmitted). The app downloads public IEEE manufacturer databases for device identification, and fetches an AP compatibility matrix from this support site to keep hardware compatibility data current. Everything else stays on your device and your local network.
 </div>
+
+<h2>Platform</h2>
+
+<p>NoCentral is an iOS/iPadOS application supporting iOS 16 and later. It runs natively on iPhone and iPad. On Apple Silicon Macs, the same iPad app can be installed from the App Store and runs as a "Designed for iPad" application — the privacy behaviour described in this policy applies to all three.</p>
+<p>References to "your device" in this document mean the iPhone, iPad, or Apple Silicon Mac on which NoCentral is installed.</p>
 
 <h2>Information Collection and Use</h2>
 
@@ -61,24 +66,26 @@
 </ul>
 
 <h3>What Is Stored Locally (On Your Device Only)</h3>
-<p>The following data is stored exclusively on your iOS/macOS device:</p>
+<p>The following data is stored exclusively on your device:</p>
 <ul>
     <li><strong>Site configurations:</strong> Virtual Controller IP addresses, site names, usernames, and site icons/categories (Home, Office, Campus, etc.)</li>
     <li><strong>Credentials:</strong> Passwords stored securely in the system Keychain using Apple's Keychain Services</li>
     <li><strong>App preferences:</strong> Display settings including:
         <ul>
-            <li>Color palette selection (Default, Color Blind, High Contrast)</li>
+            <li>Colour palette selection (Default, Colour Blind, High Contrast)</li>
             <li>Font size preference</li>
-            <li>Per-site settings (RF RSSI cutoff threshold, retry rate cutoff percentage)</li>
+            <li>Per-site settings (RF RSSI cutoff threshold, retry rate cutoff percentage, API call gap)</li>
+            <li>Spectrum data toggle and other Settings preferences</li>
         </ul>
     </li>
     <li><strong>User-entered AP placement data:</strong>
         <ul>
             <li>AP coordinates (latitude/longitude) — <strong>only if you manually place APs using the map feature</strong></li>
-            <li>Calculated center point of all placed APs (used for RF propagation visualization)</li>
+            <li>Calculated centre point of all placed APs (used for RF propagation visualisation)</li>
             <li>This location data is optional, user-entered, stored only on your device, and never transmitted anywhere</li>
         </ul>
     </li>
+    <li><strong>Client history:</strong> A local record of wireless clients seen connected to your cluster, used to populate the Offline Clients section. Retention is configurable in Settings (default 90 days). Stored only on your device and never transmitted.</li>
     <li><strong>Performance cache data:</strong> Cached network information for faster loading, including:
         <ul>
             <li>Firmware version (derived from Virtual Controller)</li>
@@ -90,7 +97,7 @@
     <li><strong>IEEE OUI database cache:</strong> Downloaded manufacturer identification databases (see Network Communication section)</li>
     <li><strong>AP compatibility matrix cache:</strong> A downloaded copy of the AP hardware compatibility database (see Network Communication section)</li>
 </ul>
-<p><strong>Important:</strong> All of this data is stored exclusively on your device. It never leaves your device and is not accessible to the developer or any third party. Deleting a site from the app removes all associated data including any AP coordinates you entered. Deleting the app removes everything.</p>
+<p><strong>Important:</strong> All of this data is stored exclusively on your device. It never leaves your device and is not accessible to the developer or any third party. Deleting a site from the app removes all associated data including any AP coordinates you entered and the client history for that site. Deleting the app removes everything.</p>
 
 <h2>Network Communication</h2>
 
@@ -144,26 +151,25 @@
 <h3>Device Location Access</h3>
 <p>NoCentral may request access to your device's location services for the following <strong>optional</strong> feature:</p>
 <ul>
-    <li><strong>Map centering:</strong> When you use the AP placement map feature, the app may request your current location to center the map on your position for convenience</li>
+    <li><strong>Map centring:</strong> When you open the RF Location map feature, the app may request your current location to centre the map on your position for convenience</li>
     <li><strong>Frequency:</strong> Only when you open the map feature</li>
-    <li><strong>Storage:</strong> Your device location is <strong>never stored</strong> — it's used only to center the map and then discarded immediately</li>
+    <li><strong>Storage:</strong> Your device location is <strong>never stored</strong> — it's used only to centre the map and then discarded immediately</li>
     <li><strong>Transmission:</strong> Your device location is <strong>never transmitted</strong> to any server or third party</li>
 </ul>
 
-<h3>iOS</h3>
-<p>On iOS, the app prompts for location permission when you open the map feature. You can deny this in iOS Settings → NoCentral → Location. If denied, the map will center on the approximate center of the continental United States instead. The app functions normally without location access.</p>
+<h3>iPhone and iPad</h3>
+<p>On iPhone and iPad, the app prompts for location permission when you first open the RF Location map. You can grant or deny this at the prompt, and change it later in iOS Settings → NoCentral → Location. If denied, the map will centre on a default region instead. The app functions normally without location access.</p>
 
-<h3>macOS</h3>
-<p>The native macOS app does not request location access. The map centers on the continental United States until you manually pan or zoom.</p>
-<p>On Apple Silicon Macs, if you have installed the iOS version of NoCentral from the App Store, macOS may prompt for location permission depending on your system configuration. If this occurs and you grant access, macOS determines your position using available network signals rather than GPS hardware — location is used only to center the map and is never stored or transmitted. You can revoke this at any time in System Settings → Privacy &amp; Security → Location Services → NoCentral.</p>
+<h3>Apple Silicon Mac (Designed for iPad)</h3>
+<p>When the app is installed on an Apple Silicon Mac from the App Store, macOS may prompt for location permission depending on your system configuration. If you grant access, macOS determines your position using available network signals rather than GPS hardware — location is used only to centre the map and is never stored or transmitted. You can revoke this at any time in System Settings → Privacy &amp; Security → Location Services → NoCentral.</p>
 
 <h3>AP Placement Coordinates (User-Entered)</h3>
 <p>When you use the "Place APs" feature to manually mark AP locations on the map:</p>
 <ul>
     <li>You tap the map to place each AP at its physical installation location</li>
     <li>These coordinates (latitude/longitude) are stored <strong>only on your device</strong></li>
-    <li>The app calculates an approximate center point of all placed APs for RF propagation visualization</li>
-    <li>This center point is also stored <strong>only on your device</strong></li>
+    <li>The app calculates an approximate centre point of all placed APs for RF propagation visualisation</li>
+    <li>This centre point is also stored <strong>only on your device</strong></li>
     <li><strong>None of these coordinates are ever transmitted</strong> to any server or third party</li>
 </ul>
 
@@ -232,9 +238,9 @@
 <p>Since all data is stored locally on your device:</p>
 <ul>
     <li><strong>Access:</strong> You have full access to your data through the app's interface</li>
-    <li><strong>Deletion:</strong> Delete individual sites within the app to remove all associated data (including AP coordinates), or delete the app entirely to remove everything</li>
+    <li><strong>Deletion:</strong> Delete individual sites within the app to remove all associated data (including AP coordinates and client history), or delete the app entirely to remove everything</li>
     <li><strong>Export:</strong> Data can be exported from within the app (site configurations, reports)</li>
-    <li><strong>Location permissions:</strong> Manage in iOS Settings → NoCentral → Location (iOS), or System Settings → Privacy &amp; Security → Location Services → NoCentral (macOS, if prompted)</li>
+    <li><strong>Location permissions:</strong> Manage in iOS Settings → NoCentral → Location on iPhone/iPad, or System Settings → Privacy &amp; Security → Location Services → NoCentral on Apple Silicon Mac (if prompted)</li>
 </ul>
 
 <h3>No Data Portability Issues</h3>
