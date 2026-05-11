@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoCentral Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #333;
+        }
+        h1 { color: #1a1a1a; }
+        h2 { color: #2a2a2a; margin-top: 30px; }
+        h3 { color: #444; margin-top: 20px; }
+        h4 { color: #555; margin-top: 16px; }
+        .notice {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            margin: 20px 0;
+        }
+        .important {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 12px 16px;
+            margin: 20px 0;
+        }
+        .tip {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 12px 16px;
+            margin: 20px 0;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        ul {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>NoCentral Documentation</h1>
+
+<p><strong>Version:</strong> 2.0 (build 0.4) &middot; <strong>Last updated:</strong> May 11, 2026</p>
+
+<p>This page is the screen-by-screen user guide. For installation, contact, and FAQ-style troubleshooting see the <a href="index.html">Support</a> page.</p>
+
+<div class="tip">
+    <strong>About this app:</strong> NoCentral is a <strong>read-only monitoring tool</strong> for Aruba IAP clusters. It inspects what your Virtual Controller is doing — channels, clients, signal health, RF neighbours, spectrum — and never writes configuration back to the controller. Anything that would change the cluster's state is offered as copy-and-paste CLI text, not an API call.
+</div>
+
+<h2>What's new in 2.0</h2>
+
+<p>Version 2.0 is the largest release since the original ship. Headlines below — most are described in detail later on this page.</p>
+
+<h3>Navigation rebuilt around the platform</h3>
+<ul>
+    <li>iPad and Apple Silicon Mac: persistent sidebar with four sections (Monitor, Legacy, Analyze, App).</li>
+    <li>iPhone in portrait: native tab bar with five tabs (Clients &amp; APs, Channels, RF Neighbors, Settings, Disconnect).</li>
+    <li>The old custom timer/loading bar and tab-bar scroll were removed in favour of platform-native controls.</li>
+    <li>The separate native macOS build was retired — Mac users now run the iPad app via "Designed for iPad".</li>
+</ul>
+
+<h3>Channel View (Channels tab)</h3>
+<ul>
+    <li>A WiFi-Explorer-style cluster spectrum view of every AP radio across 2.4 / 5 / 6 GHz.</li>
+    <li>Bar position = channel, width = bonded block (20–160 MHz), height = TX power.</li>
+    <li>Foreign and rogue SSIDs detected by your APs are overlaid as translucent ghost bars on a second RSSI scale.</li>
+    <li>Tap any ghost bar to open a Foreign SSID Detail card scoped to the specific BSSID you tapped.</li>
+    <li>Hidden foreign SSIDs that broadcast on randomized MAC addresses are vendor-attributed by cross-referencing their broadcast siblings within the cluster.</li>
+</ul>
+
+<h3>Channel Detail upgraded</h3>
+<ul>
+    <li>Bonded sub-channel picker — for any 40 / 80 / 160 MHz channel, a chip row breaks the bond down into its 20 MHz blocks and tints each by per-block quality so you can see which sub-channel is dragging the score.</li>
+    <li>Spectrum panel — SNIR bar, WiFi vs interference utilisation split, non-WiFi interference breakdown by type (Bluetooth, microwave, cordless, etc.), active interferer list, and recent spectrum alerts.</li>
+    <li>Spectrum alerts are now band-aware — alerts from a 2.4 GHz microwave no longer leak into a 5 GHz channel card.</li>
+</ul>
+
+<h3>Per-client diagnostics</h3>
+<ul>
+    <li>Separate Down Speed and Up Speed bars in Client Detail, with speed-asymmetry detection (down vs up ≥ 3× triggers a dedicated reason instead of generic "Slow Speed").</li>
+    <li>"Mgmt?" detection — when a client's recorded speed falls below its SSID's configured minimum, the bar is labelled amber "Mgmt?" instead of red "Poor", since the snapshot is almost certainly a management frame rather than real data throughput. Suppresses false alerts on IoT devices that rarely receive downlink data.</li>
+    <li>SNR bar added between Signal and Noise Floor; Asymmetric RF direction fix (uplink vs downlink); fallback noise floor pulled from the AP's channel when the client doesn't report its own.</li>
+</ul>
+
+<h3>Faster, smoother loads</h3>
+<ul>
+    <li>Three-stage layered load bar (light → mid → dark blue) showing critical-path, enrichment, and spectrum stages of every load.</li>
+    <li>Per-AP <code>client-table</code> migration reduced API calls per refresh from 168 to 86 on a typical 12-AP cluster; full load time fell from ~20s to ~11s.</li>
+    <li>Per-AP monitor-list aggregation closes a long-standing gap in 5/6 GHz neighbour visibility — neighbours visible to the cluster but not to the VC's own scanning radio are now merged into the RF Neighbors tree.</li>
+    <li>Haptics rewritten on Core Haptics (was UIImpactFeedbackGenerator) — fixes the relogin failure mode where load-bar haptics didn't fire until the bar was 80% full.</li>
+</ul>
+
+<h3>Resilience and diagnostics</h3>
+<ul>
+    <li><strong>Fallback VC IP</strong> — each site can carry an optional secondary VC address. NoCentral silently retries against it when the primary fails (typical after the Aruba floating-IP rebind failure following a cluster reboot). Two consecutive fallback connects prompts a swap; sites without a fallback get a one-time tip suggesting one on first connect.</li>
+    <li><strong>Test API</strong> button in the site editor — a self-contained pre-login REST probe that captures the raw request/response transcript for login, <code>show version</code>, and logout. Copy log puts the whole thing on the clipboard for support.</li>
+    <li>The old single "Firmware Version Error" alert has been replaced with four cause-specific dialogs (session timeout / network unreachable / VC refused / unsupported firmware). Login error wording is plain English — "Username or password is wrong" instead of HTTP codes.</li>
+</ul>
+
+<h3>Settings and presentation</h3>
+<ul>
+    <li>Reorganised Settings (Display &amp; Appearance, Site Settings, Spectrum, Channel View foreign-SSID scale, Topology, Device Icons, Advanced Tuning, Experimental).</li>
+    <li>Four colour palettes, with five distinct semantic colours per palette (the Performance tab's five filter categories all read distinct in every palette including High Contrast).</li>
+    <li>Font Size adjustment (−3 to +3) applied globally from the site profile.</li>
+    <li>Customisable client-icon rules: define keywords that map hostnames to SF Symbols in the topology tree.</li>
+</ul>
+
+<h2>Getting connected</h2>
+
+<h3>Sites</h3>
+
+<p>NoCentral organises every cluster you connect to as a <strong>site</strong>. The site stores the Virtual Controller address, the optional fallback address, the username, and per-site preferences (font size, RSSI cutoff, client history retention, API call gap, fallback prompt state). Passwords are held in the iOS Keychain, not in the site record.</p>
+
+<p>From the login screen:</p>
+<ul>
+    <li>Tap the site row to open the site list. Add a new site with the + button, or tap any saved site to edit it.</li>
+    <li>Edit Site fields: name, icon, VC host:port, username, fallback VC host:port (optional), password (writes to Keychain), and Test API.</li>
+    <li>Swipe a site left in the list to delete it.</li>
+    <li>"Try Demo" enters a demo site with sample Acme Corp data — useful for inspecting every feature without hardware.</li>
+</ul>
+
+<h3>Test API</h3>
+
+<p>The site editor includes a <strong>Test API</strong> button that runs a pre-login REST probe against the configured VC and, if present, the fallback. The probe runs <code>POST /rest/login</code>, <code>GET /rest/show-cmd?cmd=show version</code> (with and without <code>type=2</code>), and <code>POST /rest/logout</code>, then displays each step with the raw request and response.</p>
+
+<ul>
+    <li>Failed steps expand automatically so the diagnostic is in front of you on open.</li>
+    <li><strong>Re-run</strong> in the toolbar replays the probe.</li>
+    <li><strong>Copy log</strong> puts the whole transcript onto the clipboard for pasting into a support email.</li>
+    <li><strong>Open support site</strong> opens https://nocentral.github.io in Safari.</li>
+</ul>
+
+<h3>Fallback VC IP</h3>
+
+<p>Each site can carry an optional secondary VC address. When the primary fails to bootstrap because of a network or VC-refusal error, NoCentral silently logs in against the fallback and shows a notice once you're connected. Details:</p>
+
+<ul>
+    <li>The auto-retry only fires for network-level failures, not for incorrect credentials or unsupported firmware.</li>
+    <li>The site needs a stored Keychain password for the silent retry to work — biometric-protected credentials qualify.</li>
+    <li>After two consecutive successful connects via the fallback, the app prompts to swap the primary and fallback addresses (the swapping VC has clearly become the more reliable one).</li>
+    <li>For sites without a fallback, the app shows a one-time tip on first connect explaining the floating-IP rebind scenario and offering to add one.</li>
+</ul>
+
+<h3>Login errors</h3>
+
+<p>Every connection failure now produces a cause-specific dialog rather than the old generic "Firmware Version Error":</p>
+
+<ul>
+    <li><strong>Session timeout</strong> — VC sign-out after 15 minutes of inactivity. Log in again to continue.</li>
+    <li><strong>Network unreachable</strong> — couldn't reach the VC at all. Check Wi-Fi, VPN, and routing to the VC IP.</li>
+    <li><strong>VC refused the request</strong> — the VC is reachable but rejecting REST API calls. Usually REST API isn't enabled, or there's an auth issue.</li>
+    <li><strong>Firmware not supported</strong> — VC firmware is outside NoCentral's tested range. Dialog links to this site for the supported-firmware list.</li>
+</ul>
+
+<p>Login-screen errors are translated into plain English ("Username or password is wrong", "Couldn't reach the VC in time. Check your network and the address, then try again.") rather than HTTP codes.</p>
+
+<h2>Navigation</h2>
+
+<p>The navigation surface adapts to the device:</p>
+
+<h3>iPad &amp; Apple Silicon Mac ("Designed for iPad")</h3>
+
+<p>A persistent sidebar runs down the left, organised into four sections:</p>
+
+<ul>
+    <li><strong>Monitor</strong> — Clients &amp; APs, Channels (Channel View), RF Neighbors</li>
+    <li><strong>Legacy</strong> — Clients, Access Points, Channel Quality, Performance (the original flat-list views, kept alongside the hierarchical Clients &amp; APs tree)</li>
+    <li><strong>Analyze</strong> — Deny List, Config, Logs, VSG Check, Firmware</li>
+    <li><strong>App</strong> — Exports, Settings, Disconnect</li>
+</ul>
+
+<p>RF Locator appears under Monitor when enabled via Settings → Experimental → Show RF Location. In portrait orientation the sidebar is hidden by default and swipes out from the left edge.</p>
+
+<h3>iPhone Pro / Max in landscape</h3>
+
+<p>Same sidebar; hidden by default and swipes out from the left edge.</p>
+
+<h3>iPhone in portrait</h3>
+
+<p>A native tab bar runs along the bottom with five tabs:</p>
+
+<ul>
+    <li><strong>Clients &amp; APs</strong> — the hierarchical tree</li>
+    <li><strong>Channels</strong> — Channel View</li>
+    <li><strong>RF Neighbors</strong></li>
+    <li><strong>Settings</strong> — also surfaces the Analyze tools (Deny List, Config, Logs, VSG Check, Firmware), the Exports tool, and the optional Legacy / Experimental views as pushed screens</li>
+    <li><strong>Disconnect</strong> — turns amber with a warning triangle when your VC session is less than two minutes from timing out</li>
+</ul>
+
+<h3>Loading indicators</h3>
+
+<p>A thin three-stage progress strip runs along the top of the screen during loads:</p>
+
+<ol>
+    <li><strong>Light blue — Critical path.</strong> Cluster summary, firmware, clients, associations, and per-AP details. When this finishes the app is fully usable.</li>
+    <li><strong>Mid blue — Enrichment.</strong> Channel quality, per-AP statistics, RF neighbours, performance metrics, and ancillary info.</li>
+    <li><strong>Dark blue — Spectrum data.</strong> Per-AP spectrum scans for Channel View and Channel Detail. Only runs when <strong>Load Spectrum Data</strong> is enabled in Settings (on by default).</li>
+</ol>
+
+<p>You can navigate freely while loading — views populate as their data arrives.</p>
+
+<h2>Clients &amp; APs (hierarchical tree)</h2>
+
+<p>The primary monitoring surface. The cluster is shown as a tree:</p>
+
+<pre><code>Site
+  ├── AP
+  │     ├── Radio (band, channel, width)
+  │     │     ├── Client
+  │     │     └── Client
+  │     └── Wired Interface
+  │           └── LLDP Neighbour
+  ├── AP …
+  └── Offline AP (italicised + dimmed)
+</code></pre>
+
+<h3>What it shows</h3>
+
+<ul>
+    <li><strong>Site row</strong> — site pill with the cluster name, AP count, and client count. Always visible.</li>
+    <li><strong>AP rows</strong> — name, online state, active-band coloured dots, live client count. Offline APs are italicised with an "Offline" tag.</li>
+    <li><strong>Radio rows</strong> — band-coloured dot, channel + width, either monitor-mode indicator or utilisation, and client count.</li>
+    <li><strong>Wired Interface rows</strong> — port name, "slow link" warning triangle when the negotiated speed is ≤100 Mbps, and client count.</li>
+    <li><strong>Client rows</strong> — device icon (matched from your icon rules), name, an amber warning triangle if the client is currently flagged in the Performance view, and RSSI.</li>
+    <li><strong>LLDP neighbour rows</strong> — appear under each wired port with system name, capability flag, management IP, and remote port. Switches get a distinct icon.</li>
+    <li><strong>Ghost rows</strong> — clients that have just roamed away appear italicised and dimmed with their move destination, so you can trace a roam in real time.</li>
+</ul>
+
+<h3>What you can do</h3>
+
+<ul>
+    <li>Type into the search field (iPhone landscape / iPad) or use the rotate-to-search hint on iPhone portrait — matches against APs, radios, and clients and narrows the whole tree.</li>
+    <li>Use the expand-all / collapse-all chevrons at the top.</li>
+    <li>Tap an AP row to open <strong>AP Detail</strong>.</li>
+    <li>Tap a radio row to open AP Detail focused on that radio's parent AP.</li>
+    <li>Tap a wired interface row to open the wired-port detail panel (link state, speed, duplex, LLDP neighbour).</li>
+    <li>Tap a client row to open <strong>Client Detail</strong>.</li>
+    <li>Tap the site pill to open the site detail card.</li>
+    <li>Pull down to refresh the cluster.</li>
+</ul>
+
+<div class="tip">
+    On iPad detail screens open as a slide-in panel from the trailing edge over a dimmed background; on iPhone they appear as sheets. The tree underneath stays interactive on iPad.
+</div>
+
+<h3>Performance flagging</h3>
+
+<p>The same warning triangle used in the Performance view appears inline on client rows that meet your configured retry threshold or signal/SNR limits. Tapping into Client Detail from a flagged client shows the same Performance Impact card as the Performance tab.</p>
+
+<h3>Wired topology overlay</h3>
+
+<p>If <strong>Settings → Topology → Load Wired Port &amp; LLDP Data</strong> is on (default), per-AP port speed/duplex and a single cluster-wide LLDP fetch are pre-fetched in the background after the critical-path load. The information is then available wherever a wired port or LLDP neighbour appears.</p>
+
+<h2>Channels (Channel View)</h2>
+
+<p>A WiFi-Explorer-style cluster spectrum view. The screen is reached from the Channels tab on iPhone, or Monitor → Channels in the sidebar on iPad.</p>
+
+<h3>The chart</h3>
+
+<p>One band at a time (2.4 / 5 / 6 GHz, selected from the segmented band picker). Each AP radio in the cluster is drawn as a bar:</p>
+
+<ul>
+    <li><strong>Bar position</strong> — channel</li>
+    <li><strong>Bar width</strong> — bonded channel width (20, 40, 80, or 160 MHz)</li>
+    <li><strong>Bar height</strong> — TX power in dBm (left Y-axis)</li>
+    <li><strong>Diagonal stripe</strong> — the primary 20 MHz channel within the bonded block</li>
+    <li><strong>Sub-band shading</strong> — ISM, UNII-1..8, DFS, and 6 GHz PSC channels are colour-coded along the top and baseline of the chart</li>
+</ul>
+
+<p>When spectrum data is enabled, foreign and rogue SSIDs detected by your APs are overlaid as translucent ghost bars on a separate RSSI scale shown on the right.</p>
+
+<h3>What you can do</h3>
+
+<ul>
+    <li>Use the band picker to switch between 2.4 / 5 / 6 GHz. Your last band is remembered.</li>
+    <li>Tap a footer pill to filter to your own radios only, foreign SSIDs only, or rogue SSIDs only. Tap again to clear.</li>
+    <li>Tap an own-cluster bar to open <strong>Channel Detail</strong> focused on that AP and channel.</li>
+    <li>Tap a ghost bar to open <strong>Foreign SSID Detail</strong> for that specific BSSID.</li>
+</ul>
+
+<div class="tip">
+    The rogue filter chip uses a red dot so the cue does not depend on colour alone. When spectrum data is disabled in Settings, the foreign filters degrade to "all" so the chart never silently empties.
+</div>
+
+<h2>Channel Detail</h2>
+
+<p>Opens from Channel View (tap a bar) or from Channel Quality (tap a row). Shows the full picture for one channel.</p>
+
+<h3>Sections, in order</h3>
+
+<ol>
+    <li><strong>Bonded sub-channels</strong> (only on bonded channels &gt; 20 MHz) — one chip per 20 MHz block in the bond, tinted by per-block quality and marked "P" for the primary. Tap a chip to inspect that sub-channel's readings.</li>
+    <li><strong>Channel Health</strong> — gauge ring with Quality score, stacked Utilization bar (WiFi vs Interference), Noise Floor, SNIR, Retry Rate. Each bar has a doc-icon button for an explainer sheet.</li>
+    <li><strong>APs on This Channel</strong> — each AP's model, scanning state, client count, utilisation, and quality. The AP you tapped (if any) is highlighted with a SELECTED tag. A warning triangle appears on APs reporting non-WiFi interference.</li>
+    <li><strong>Interfering SSIDs on this channel</strong> — foreign networks observed on this channel with manufacturer, PHY, width, AP type, RSSI.</li>
+    <li><strong>Non-WiFi Interferers</strong> — Bluetooth / Microwave / Cordless Phone / Other breakdown, plus active interferers and the channel's spectrum-alert history.</li>
+    <li><strong>Suggestions</strong> — contextual advice based on the readings (non-standard 2.4 GHz channel, DFS, high co-channel AP count, etc.).</li>
+</ol>
+
+<h3>Notes</h3>
+
+<ul>
+    <li>Spectrum-derived bars are hidden when every AP returned limited-scan sentinel zeros for the channel.</li>
+    <li>Spectrum alerts are filtered to this band — alerts from other bands show as a "+ N more" footer line.</li>
+    <li>The doc-icon buttons next to Channel Health, Non-WiFi, and Interfering SSIDs open explainer sheets covering what the metric means and how to interpret it.</li>
+</ul>
+
+<h2>Foreign SSID Detail</h2>
+
+<p>Opens from Channel View (tap a ghost bar). Scoped to the specific BSSID you tapped, not aggregated across all radios.</p>
+
+<h3>What it shows</h3>
+
+<ul>
+    <li><strong>Title</strong> — ESSID (or "[Hidden network]") and the worst observed classification (Interfering / Rogue).</li>
+    <li><strong>Identity</strong> — signal, bandwidth, channel range, centre channel and frequency, BSSID, and manufacturer. When the vendor was inferred from a cluster sibling, an "Inferred from" row carries the anchor BSSID.</li>
+    <li><strong>Broadcasting Radios</strong> — every BSSID heard sharing this ESSID across the cluster, with band, channel, width, vendor (or "Vendor unknown — primary BSS not observed" for unresolvable randomised cases), RSSI, SNR, and client count. The tapped row carries a TAPPED chip.</li>
+    <li><strong>Classification</strong> — observed types, encryption modes, and PHY types.</li>
+</ul>
+
+<div class="tip">
+    <strong>Why "inferred":</strong> some foreign vendors broadcast with locally-administered (randomised) MAC addresses, which on their own give you "Randomized MAC" instead of a vendor name. NoCentral walks the same radio's sibling BSSIDs to find one with a burned-in MAC — that one reveals the actual vendor, and the inference is attributed back to the BSSID you tapped.
+</div>
+
+<h2>RF Neighbors</h2>
+
+<p>The cluster's complete view of every other Wi-Fi network its radios can hear — your own SSIDs, foreign networks, and any APs classified as rogue.</p>
+
+<p>Organised as a tree: SSID → BSSID → (expandable) clients on that BSSID.</p>
+
+<ul>
+    <li><strong>SSID rows</strong> — name, classification chip (rogue / interfering), BSSID count.</li>
+    <li><strong>BSSID rows</strong> — RSSI bar, MAC, manufacturer, channel badge (coloured by band), PHY badge, encryption badge.</li>
+    <li><strong>Client rows</strong> — MAC, manufacturer, channel, signal.</li>
+</ul>
+
+<h3>What you can do</h3>
+
+<ul>
+    <li>Type into the search field (iPhone landscape / iPad) to filter by SSID, BSSID, or manufacturer.</li>
+    <li>Tap an SSID row to expand or collapse it.</li>
+    <li>Tap the client-count row under an SSID to show or hide its clients.</li>
+    <li>Use the expand-all / collapse-all chevrons.</li>
+    <li>Pull down to refresh.</li>
+</ul>
+
+<div class="tip">
+    The data is merged from every online AP in the cluster, not just the VC. This is important — a single AP's view of the RF environment is heavily biased toward whichever band it happens to be scanning on. The on-demand per-AP monitor-list pass added in 2.0 is what makes 5 / 6 GHz neighbours visible here.
+</div>
+
+<p>The <strong>RF RSSI Cutoff</strong> preference (Settings → Site Settings) hides BSSIDs and SSIDs whose signal is weaker than the configured threshold (Aruba's positive scale — higher = weaker).</p>
+
+<h2>Performance</h2>
+
+<p>A ranked list of wireless clients flagged for performance issues, scored by how many categories they trigger.</p>
+
+<h3>Categories</h3>
+
+<ul>
+    <li><strong>Slow Speed</strong> — recorded down-speed below 12 Mbps.</li>
+    <li><strong>Speed Asymmetry</strong> — up-speed ≥ 3× down-speed (typical of a weak receive chain rather than an RF problem).</li>
+    <li><strong>Poor Signal</strong> — signal label = poor.</li>
+    <li><strong>High Retry</strong> — retry rate above your configured Airtime Warning Threshold.</li>
+    <li><strong>Asymmetric RF</strong> — &gt; 15 dB gap between uplink and downlink SNR (with direction correctly inferred from Aruba's positive scale).</li>
+    <li><strong>Poor SNR</strong> — SNR below 25.</li>
+</ul>
+
+<h3>What you can do</h3>
+
+<ul>
+    <li>Toggle the five filter chips to include or exclude each category. The choices are remembered between sessions.</li>
+    <li>Tap a client row to open Client Detail.</li>
+    <li>Tap the doc-icon next to any legend entry for an explainer.</li>
+    <li>Pull down to refresh.</li>
+</ul>
+
+<p>Each row also shows the row's <strong>Impacting:</strong> list — fast peers on the same AP and band that the flagged client is harming through airtime contention.</p>
+
+<h2>Client Detail</h2>
+
+<p>The per-client card. Reached from Clients &amp; APs, Clients, the Performance tab, Search, and the Connected Clients list inside AP Detail.</p>
+
+<h3>Sections</h3>
+
+<ul>
+    <li><strong>Identity</strong> — name, IPv4 / IPv6, MAC, manufacturer, operating system.</li>
+    <li><strong>Connection</strong> — SSID, AP, BSSID, band, channel + width, PHY, role, association time. Wired clients show the wired interface here.</li>
+    <li><strong>Signal Health</strong> — Signal, SNR, Noise Floor, Down Speed, Up Speed, Last Uplink Signal, Last Downlink Signal, Retry Rate. Each bar carries a scaled fill with a Good / OK / Poor label, bold-coloured to match the value.</li>
+    <li><strong>Performance Impact</strong> — flagged issues with doc-icon buttons that open explainer sheets (Slow Speed, Poor Signal, Poor SNR, High Retry, Asymmetric RF, Mgmt Frame), plus the fast peers being harmed.</li>
+    <li><strong>Current Throughput</strong> — live down / up.</li>
+    <li><strong>Security</strong> — auth type, type, detail, and a row of capability pills (WMM, 11k, 11v, PMF, 11r, SAE, etc.). Tap any pill for a sheet explaining that capability.</li>
+    <li><strong>Mobility Trail</strong> — recent roaming events.</li>
+    <li><strong>Recent Stats</strong> — timestamped snapshot rows with signal / link-rate / throughput.</li>
+    <li><strong>Roam Cache</strong>.</li>
+    <li><strong>Traffic Sessions</strong> — datapath sessions with source/destination, protocol, flag string, and DENY badge.</li>
+</ul>
+
+<h3>The Mgmt? label</h3>
+
+<p>When Down Speed is below the SSID's configured minimum TX rate (g-min-tx-rate / a-min-tx-rate), the bar is labelled amber "Mgmt?" instead of red "Poor". The snapshot is almost certainly a management frame rather than real data throughput, which is why IoT devices (cameras, smart switches, plugs) used to misleadingly appear as Slow Speed. The doc-icon next to the row opens an explainer sheet.</p>
+
+<h3>What you can do</h3>
+
+<ul>
+    <li>Tap any capability pill or doc-icon to open an explainer sheet.</li>
+    <li>Tap the refresh icon in the toolbar to re-poll live data.</li>
+    <li>Pull down to retry on the rare load failure.</li>
+</ul>
+
+<h2>AP Detail</h2>
+
+<p>The per-AP card. Reached from Access Points (tap a card) or from any AP / radio row in Clients &amp; APs.</p>
+
+<h3>Sections, in order</h3>
+
+<ol>
+    <li><strong>Identification</strong> — name, IP, model, serial, MAC, uplink port, Wi-Fi capability, status, uptime, mode.</li>
+    <li><strong>Version Support</strong> — Instant minimum and maximum supported firmware for the model. An amber warning appears when the model is capped before 8.13.</li>
+    <li><strong>Power over Ethernet</strong> — current and average watts.</li>
+    <li><strong>LED Status</strong> — System LED state, plus a composite Radio LED row with a per-radio breakdown on multi-radio APs.</li>
+    <li><strong>Radios</strong> — one section per active radio: channel, TX Power, Channel Utilisation, and Noise Floor bars.</li>
+    <li><strong>WLANs</strong> — BSSIDs grouped by ESSID, each with PHY, band, and bandwidth.</li>
+    <li><strong>Spectrum</strong> — per-channel Quality, SNIR, WiFi utilisation, non-WiFi breakdown by type, active interferers grouped by band, and recent spectrum alerts. Doc-icon buttons open SNIR and non-WiFi explainer sheets.</li>
+    <li><strong>Connected Clients</strong> — every client currently associated to the AP.</li>
+</ol>
+
+<h3>What you can do</h3>
+
+<ul>
+    <li>Tap any client row to open Client Detail.</li>
+    <li>Tap the refresh icon in the toolbar to re-poll LED status, BSSIDs, and spectrum.</li>
+    <li>Tap the doc-icon next to a Spectrum section for the relevant explainer.</li>
+</ul>
+
+<div class="tip">
+    Radios configured as Air Monitor show a callout explaining why no FFT data is produced. Channels that returned limited-scan sentinel zeros suppress the misleading Quality and SNIR bars rather than display them as red.
+</div>
+
+<h2>Access Points (legacy list)</h2>
+
+<p>Card grid of every AP — one column on iPhone, two on iPad. Each card shows name, badges (VC, Monitor, constrained-model warning), client count, IP, serial, model, PoE draw (current + average), per-radio channels (colour-coded by band), uptime, and uplink port. A Cluster PoE summary row totals current and average watts. Offline APs sit in a dimmed section at the bottom.</p>
+
+<h3>What you can do</h3>
+
+<ul>
+    <li>Tap an AP card to open AP Detail.</li>
+    <li>Tap the client-count badge to jump to Clients filtered to that AP.</li>
+    <li>Tap the <strong>Cleanup Script</strong> row above the Offline section to open a sheet of CLI commands that remove every offline AP from the allowed-AP list. Copy puts the whole script onto the clipboard.</li>
+    <li>Pull down to refresh.</li>
+</ul>
+
+<h2>Clients (legacy flat list)</h2>
+
+<p>The original flat list of every client on the cluster, sortable and filterable. Available from the iPad sidebar, or from iPhone Settings → Legacy Views when the toggle is on.</p>
+
+<h3>Filters</h3>
+
+<p>The filter strip at the top supports: Online, Offline, Wireless, Wired, 2.4 GHz, 5 GHz, 6 GHz, WPA3-Ent, WPA3-SAE, WPA2, Open / OWE.</p>
+
+<h3>Sort</h3>
+
+<p>Sort header bar offers Name, Signal, or Health, ascending or descending. Tap a column header to change sort.</p>
+
+<h3>Offline section</h3>
+
+<p>Clients you've seen connected to the cluster previously but that are not currently online appear in an Offline section (only visible under the Offline filter). Each row shows last-seen timestamp, last AP, and last SSID. Swipe a row left to delete it; the section header menu can clear them all.</p>
+
+<p>Retention is controlled by <strong>Settings → Site Settings → Client History</strong> (10 / 30 / 90 / 180 days / 1 year, default 90). Tightening retention shows a confirmation telling you how many entries will be removed.</p>
+
+<h2>Channel Quality (legacy list)</h2>
+
+<p>Stacked-card list of every channel the cluster's APs are using, grouped by 2.4 GHz and 5 GHz. Each card shows channel number, an overlap warning ("Overlaps ch 1 &amp; 6") on non-standard 2.4 GHz channels, Good / OK / Poor pill, a Quality bar, a stacked WiFi/Interference utilisation bar, a Noise Floor bar, and a horizontally scrollable row of AP pills. A warning triangle appears on AP pills that are reporting non-WiFi interference.</p>
+
+<p>Tap any card to open <strong>Channel Detail</strong>.</p>
+
+<h2>RF Locator (experimental)</h2>
+
+<p>An on-demand <strong>probability estimator</strong> for foreign Wi-Fi sources, drawn over a satellite map. To enable it, toggle <strong>Settings → Experimental → Show RF Location</strong> on.</p>
+
+<div class="important">
+    <strong>This is not a precision locator.</strong> RF Locator does not put a pin on a neighbour the way GPS would. For each detected foreign source, it takes RSSI readings from your own APs and computes a likely <em>area</em>, with a minimum-TX-power blob and a maximum-TX-power blob (overlap = highest probability).
+</div>
+
+<h3>Setup</h3>
+
+<p>The bottom card walks you through the steps: Setup → Place APs → Ready → Analysing → Result.</p>
+
+<ol>
+    <li>Tap the SSID button at the top to pick a target foreign BSSID — the list is ranked by RSSI on the 2.4 GHz band.</li>
+    <li>Tap <strong>Place APs</strong>, then tap the map to drop a pin for each of your APs. When several APs are unplaced, a sheet asks which AP each pin represents.</li>
+    <li>Drag an existing pin to move it; tap a pin's callout trash button to remove it.</li>
+    <li>Tap <strong>Analyze</strong> (or <strong>Refresh</strong> if a result is already shown) to compute the area.</li>
+    <li>Expand the result card to see the RSSI each AP reported for the chosen neighbour.</li>
+</ol>
+
+<h3>What controls accuracy</h3>
+
+<p>Accuracy depends almost entirely on your AP layout, not on the app. Estimates improve when:</p>
+
+<ul>
+    <li>More of your APs hear the same neighbour.</li>
+    <li>Those APs are physically separated.</li>
+    <li>APs are installed uniformly — similar model, mounting height, and orientation.</li>
+</ul>
+
+<p>Most production installs were designed for client coverage, not RF geolocation. Expect your own site to fall in that category — broad fuzzy areas are the norm, tight peaks the exception.</p>
+
+<h2>Settings tools</h2>
+
+<h3>Deny List</h3>
+
+<p>Every client currently denied by the VC. Each entry shows MAC, manufacturer (or "Unknown · possibly randomised"), countdown to expiry, deny reason, originating AP, timestamp, and a single-line <code>no denylist-client &lt;mac&gt;</code> CLI snippet.</p>
+
+<ul>
+    <li>Tap <strong>Auth Log</strong> on an entry to fetch and inline-expand recent authentication events for that MAC.</li>
+    <li>Tap the copy icon on a row to copy that entry's remove command to the clipboard.</li>
+    <li>Tap the <strong>Cleanup Script</strong> row to open a sheet that aggregates the remove commands for every entry.</li>
+</ul>
+
+<div class="notice">
+    The VC keeps a shallow auth-log buffer (~200 events). For older entries the log may be empty by the time you look.
+</div>
+
+<h3>Config</h3>
+
+<p>Read-only view of the cluster's running configuration as plain monospaced text. Long-press to select and copy specific lines.</p>
+
+<h3>Logs</h3>
+
+<p>Live log viewer. Three pickers at the top:</p>
+
+<ul>
+    <li><strong>Target AP</strong> — defaults to the VC; switchable to any online AP.</li>
+    <li><strong>Log type</strong> — priority types listed first (debug, sapd, security, system, user, user-debug, wireless), plus 40+ others.</li>
+    <li><strong>Line count</strong> — 10, 25, 50, 100, or 200.</li>
+</ul>
+
+<p>The running <code>show log &lt;type&gt; &lt;count&gt;</code> command appears as the section header. Each picker change re-runs the fetch after a short debounce. Long-press log lines to select and copy.</p>
+
+<h3>VSG Check</h3>
+
+<p>A best-practice rule check of the cluster's running config against Aruba's Validated Solutions Guide. Tap <strong>Fetch &amp; Validate</strong> to pull a fresh running config and run the rule engine.</p>
+
+<p>Results are split into per-SSID sections plus a Global Settings section. Each section carries a pass-percentage pill and "passed / failed / total" subtitle. Tap a check row to expand its <strong>What this means</strong> and <strong>How to fix</strong> explanations.</p>
+
+<p>Attribution credits Aaron Scott's Central Automation Studio, which inspired the rule set. Flagged checks indicate <em>deviation from the VSG</em> — not confirmed misconfiguration.</p>
+
+<h3>Firmware (Upgrade Planner)</h3>
+
+<p>Helps understand the impact of a firmware upgrade on the AP fleet before you commit to it.</p>
+
+<ul>
+    <li><strong>Current State</strong> — cluster firmware, count of APs with capability data, count of constrained-model APs.</li>
+    <li><strong>Firmware Upgrade Simulator</strong> — segmented picker for the target Instant train (8.10 / 8.11 / 8.12 / 8.13). Below it, every AP row shows whether it would still be supported on the chosen train.</li>
+    <li><strong>Remediation Options</strong> — for any AP that wouldn't survive the chosen train: replace it with a compatible model, isolate it on a separate cluster, or retire it from the allowed-AP list. The replacement suggestion uses a per-model lookup; if no replacement is known the row reads "Consult an Aruba SE".</li>
+</ul>
+
+<p>The capability database is bundled with the app and refreshed automatically in the background when a newer version is published.</p>
+
+<h2>Exports</h2>
+
+<p>Reports and CSV / script exports. Reached from the sidebar (iPad) → App → Exports, or from iPhone Settings → Tools → Exports.</p>
+
+<h3>Format picker</h3>
+
+<p>Choose Plain Text or PDF at the top. PDF renders in 8-point monospaced on A4 via the iOS share sheet.</p>
+
+<h3>Available exports</h3>
+
+<ul>
+    <li><strong>Client List</strong></li>
+    <li><strong>Access Points</strong></li>
+    <li><strong>Channel Quality</strong></li>
+    <li><strong>Performance</strong></li>
+    <li><strong>RF Neighbors</strong></li>
+    <li><strong>Deny List</strong></li>
+    <li><strong>VSG Check</strong></li>
+    <li><strong>Upgrade Planner</strong></li>
+    <li><strong>Running Config</strong></li>
+    <li><strong>Offline AP Cleanup Script</strong> — <code>.txt</code> of CLI remove commands for every offline AP</li>
+    <li><strong>Denylist Cleanup Script</strong> — <code>.txt</code> of CLI remove commands for every denied client</li>
+    <li><strong>Export AP list for GreenLake (CSV)</strong> — serial, MAC, AP name, tag URL — formatted for HPE GreenLake import</li>
+</ul>
+
+<p>Rows whose source data hasn't been loaded yet are dimmed with a "Visit the X tab to load data first" caption. Tap a row to render the report and open the iOS share sheet.</p>
+
+<h2>Search</h2>
+
+<p>A dedicated client search. Available from the sidebar (iPad) → Monitor → Search, or from the iPhone tab bar.</p>
+
+<p>Type into the bar to match against client name, wired hostname, IP, MAC, and manufacturer. Tap a result to open Client Detail. Cancel clears the query.</p>
+
+<h2>Settings</h2>
+
+<p>Reached from the sidebar (iPad) → App → Settings, or from the iPhone tab bar. The page is organised into sections from top to bottom; on iPhone portrait, additional Tools and Legacy / Experimental groups appear above the standard sections.</p>
+
+<h3>Display &amp; Appearance</h3>
+
+<ul>
+    <li><strong>Color Palette</strong> — pick from the four bundled schemes (Standard, High Contrast, Warm, Cool). Three preview swatches show the Good / OK / Poor colours each palette uses.</li>
+    <li><strong>Font Size</strong> — −3 to +3 steps applied globally from the site profile.</li>
+    <li><strong>Show Legacy Views</strong> — when on, the original Clients / Access Points / Channel Quality / Performance views appear in the iPad sidebar (Legacy section) and at the top of iPhone Settings.</li>
+</ul>
+
+<h3>Site Settings</h3>
+
+<ul>
+    <li><strong>RF RSSI Cutoff</strong> — hides signals weaker than this value from RF Neighbors. Aruba positive scale; higher = weaker. Range 70–110 dBm, default 75.</li>
+    <li><strong>Airtime Warning Threshold</strong> — flags clients whose retry rate exceeds this value (range 10–200%).</li>
+    <li><strong>Client History</strong> — how long to keep records of clients that have left the network. 10 / 30 / 90 / 180 days / 1 year. Tightening shows a confirmation with the number of entries that would be removed.</li>
+    <li><strong>Clear Offline Client History</strong> — removes every offline client currently stored for this site.</li>
+</ul>
+
+<h3>Spectrum</h3>
+
+<ul>
+    <li><strong>Load Spectrum Data</strong> — on by default. When on, an additional set of per-AP API calls runs as a third loading stage to retrieve channel quality, SNIR, non-WiFi breakdown, active interferers, and recent alerts. On a 12-AP cluster this adds roughly 3–5 seconds to load time. Disable to shave that time.</li>
+</ul>
+
+<h3>Channel View</h3>
+
+<p>Two sliders that control the foreign-SSID ghost-bar scale on the spectrum chart:</p>
+
+<ul>
+    <li><strong>Strongest RSSI (top of scale)</strong> — neighbours stronger than this clamp to the top. Lower to spread strong neighbours.</li>
+    <li><strong>Weakest RSSI (bottom of scale)</strong> — neighbours weaker than this fade to invisible. Raise to hide distant neighbours.</li>
+</ul>
+
+<h3>Topology</h3>
+
+<ul>
+    <li><strong>Load Wired Port &amp; LLDP Data</strong> — on by default. After the main load completes, fetches port speed, duplex, and LLDP neighbour data for every AP with a wired interface. Disable on large networks if pure load speed matters more than wired detail.</li>
+</ul>
+
+<h3>Device Icons</h3>
+
+<p>Tap <strong>Device Icon Rules</strong> to open the rule editor. Each rule maps a hostname keyword to an SF Symbol; the first match wins. Rules sort alphabetically. In the editor:</p>
+
+<ul>
+    <li>Tap a row to edit it.</li>
+    <li>Tap + to add a new rule.</li>
+    <li>Tap EditButton to drag-reorder, or swipe a row left to delete.</li>
+    <li>Tap Reset and confirm to restore the built-in defaults.</li>
+    <li>The icon picker is a paged grid; the current selection is highlighted.</li>
+</ul>
+
+<h3>Advanced Tuning</h3>
+
+<ul>
+    <li><strong>API Call Gap</strong> — minimum delay between consecutive API calls, 0–150 ms in 50 ms steps. Saved per site. Default 0 ms — most clusters run cleanly there. 50 ms is automatically applied for Aruba Central-managed clusters. Increase if you're seeing API errors below.</li>
+    <li><strong>Last load timing</strong> — a one-line summary of the three load stages (critical / detail / spectrum).</li>
+    <li><strong>Error log</strong> — every API error this session. Empty means a clean run. Cleared on reconnect.</li>
+</ul>
+
+<h3>Experimental</h3>
+
+<ul>
+    <li><strong>Show RF Location</strong> — reveals the RF Locator view. The probability triangulation is still being tuned; treat results as a starting point, not gospel.</li>
+</ul>
+
+<h2>Quick reference</h2>
+
+<h3>Where each tool lives</h3>
+
+<table>
+<thead>
+<tr><th align="left">Tool</th><th align="left">iPad / Mac</th><th align="left">iPhone</th></tr>
+</thead>
+<tbody>
+<tr><td>Clients &amp; APs (tree)</td><td>Sidebar → Monitor</td><td>Tab bar</td></tr>
+<tr><td>Channels (Channel View)</td><td>Sidebar → Monitor</td><td>Tab bar</td></tr>
+<tr><td>RF Neighbors</td><td>Sidebar → Monitor</td><td>Tab bar</td></tr>
+<tr><td>Search</td><td>Sidebar → Monitor</td><td>(via tree search)</td></tr>
+<tr><td>RF Locator</td><td>Sidebar → Monitor (when enabled)</td><td>Settings → Experimental → RF Location</td></tr>
+<tr><td>Clients (legacy)</td><td>Sidebar → Legacy</td><td>Settings → Legacy Views</td></tr>
+<tr><td>Access Points (legacy)</td><td>Sidebar → Legacy</td><td>Settings → Legacy Views</td></tr>
+<tr><td>Channel Quality (legacy)</td><td>Sidebar → Legacy</td><td>Settings → Legacy Views</td></tr>
+<tr><td>Performance (legacy)</td><td>Sidebar → Legacy</td><td>Settings → Legacy Views</td></tr>
+<tr><td>Deny List</td><td>Sidebar → Analyze</td><td>Settings → Analyze</td></tr>
+<tr><td>Config</td><td>Sidebar → Analyze</td><td>Settings → Analyze</td></tr>
+<tr><td>Logs</td><td>Sidebar → Analyze</td><td>Settings → Analyze</td></tr>
+<tr><td>VSG Check</td><td>Sidebar → Analyze</td><td>Settings → Analyze</td></tr>
+<tr><td>Firmware</td><td>Sidebar → Analyze</td><td>Settings → Analyze</td></tr>
+<tr><td>Exports</td><td>Sidebar → App</td><td>Settings → Tools</td></tr>
+<tr><td>Settings</td><td>Sidebar → App</td><td>Tab bar</td></tr>
+<tr><td>Disconnect</td><td>Sidebar → App</td><td>Tab bar</td></tr>
+</tbody>
+</table>
+
+<h2>If something goes wrong</h2>
+
+<p>Most operational issues — load stalls, API errors, intermittent failures on Central-managed clusters, the fallback IP rebind scenario — are covered in detail on the <a href="index.html">Support</a> page under <strong>Common Issues</strong>. The short version:</p>
+
+<ul>
+    <li>Run <strong>Test API</strong> from the site editor first. It tells you exactly where the problem is: network, REST, auth, or firmware.</li>
+    <li>Check <strong>Settings → Advanced Tuning → Error Log</strong> — if it's populated, increase the API Call Gap in 50 ms steps until the load is clean.</li>
+    <li>If the VC IP stops responding entirely after a cluster reboot, you've probably hit the Aruba floating-IP rebind failure. Configure a fallback VC IP on the site, or temporarily switch the site address to any individual AP's DHCP IP.</li>
+</ul>
+
+<h2>Contact</h2>
+
+<p>NoCentral is developed and maintained as a side project. Support is best-effort.</p>
+
+<p><strong>Email:</strong> <a href="mailto:nocentralsupport@gmail.com">nocentralsupport@gmail.com</a><br>
+<strong>Support site:</strong> <a href="https://nocentral.github.io">https://nocentral.github.io</a><br>
+<strong>Typical response:</strong> 1–2 weeks for non-critical issues</p>
+
+<p>See also: <a href="index.html">Support</a> &middot; <a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use</a></p>
+
+<hr>
+
+<p style="color: #666; font-size: 0.9em; margin-top: 40px;">
+    <strong>NoCentral</strong> is developed independently and is not affiliated with, endorsed by, or sponsored by HPE, Aruba Networks, or any of their subsidiaries.<br>
+    Aruba and Aruba Networks are registered trademarks of Hewlett Packard Enterprise.<br>
+    Apple, App Store, iPhone, iPad, and TestFlight are trademarks of Apple Inc.<br>
+    IEEE is a registered trademark of the Institute of Electrical and Electronics Engineers, Inc.
+</p>
+
+</body>
+</html>
