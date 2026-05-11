@@ -46,7 +46,7 @@
 
 <h1>NoCentral Support</h1>
 
-<p><strong>Last Updated:</strong> 11:43AM, April 23, 2026</p>
+<p><strong>Last Updated:</strong> May 11, 2026</p>
 
 <div class="notice">
     <strong>Note:</strong> NoCentral is developed and maintained by a single network engineer as a side project. Support is provided on a best-effort basis with no guaranteed response time.
@@ -63,22 +63,23 @@
     <li>Aruba IAP cluster is running AOS 8 (versions 8.10–8.13) — check with <code>show version</code></li>
     <li>Your AP model is AP-3xx, AP-5xx, or AP-6xx series</li>
     <li>REST API is enabled on your Virtual Controller (<code>allow-rest-api</code> + <code>commit apply</code>)</li>
-    <li>You can reach the VC IP from your iOS/macOS device on port 4343 (HTTPS)</li>
+    <li>You can reach the VC IP from your device on port 4343 (HTTPS)</li>
     <li>Your credentials work via the VC web interface first</li>
 </ul>
 
 <h2>Frequently Asked Questions</h2>
 
 <h3>What devices are supported?</h3>
-<p>iOS 16+ and macOS Tahoe 26.3.1 or later.</p>
+<p>NoCentral is an iOS/iPadOS app, supporting iOS 16 and later. It runs natively on iPhone and iPad, and on Apple Silicon Macs via "Designed for iPad" — install it from the App Store on your Mac and it runs as the iPad app inside a Mac window.</p>
+<p>There is no longer a separate native macOS version. The native Mac build was retired in May 2026 in favour of a single iPadOS codebase, which keeps the experience consistent across all platforms and lets development time go into features rather than maintaining two parallel UIs.</p>
 
 <h3>What's the oldest device NoCentral runs on?</h3>
-<p>NoCentral targets iOS 16 and macOS Tahoe 26.3.1 as its minimum, which covers iOS devices back to roughly 2015 — including the first-generation iPad Pro 12.9" and iPhone 6s. The app is network-bound rather than CPU-bound, which means older hardware isn't materially slower than current hardware.</p>
-<p>For reference, a full load of ~170 API calls against a production cluster of 11 AP's with 110 clients takes:</p>
+<p>NoCentral targets iOS 16 as its minimum, which covers iOS devices back to roughly 2015 — including the first-generation iPad Pro 12.9" and iPhone 6s. The app is network-bound rather than CPU-bound, which means older hardware isn't materially slower than current hardware.</p>
+<p>For reference, a full load against a production cluster of 11 APs with around 110 clients takes:</p>
 <ul>
     <li>22–26 seconds on a 2015 iPad Pro (A9X)</li>
     <li>18–22 seconds on an iPhone X (A11)</li>
-    <li>18–22 seconds on an iPhone 15 (A16)</li>
+    <li>16–20 seconds on an iPhone 15 (A16)</li>
 </ul>
 <p>If you have older hardware sitting unused — an old iPad in a drawer, a spare iPhone — it's a perfectly viable dedicated NoCentral device. A cheap eBay purchase of a first-generation iPad Pro is enough to run the app indefinitely.</p>
 
@@ -94,20 +95,53 @@
 <h3>How do I connect to my Virtual Controller?</h3>
 <p>Enter your VC's IP address, username, and password. NoCentral stores credentials securely in your system Keychain.</p>
 
-<h3>Why do some tabs return errors if I tap them too quickly after login?</h3>
-<p>NoCentral uses a centralised background API handler to load your site's data. When you log in, it orders and rate-limits a sequence of calls to the Virtual Controller — clients, APs, channel quality, RF neighbours, deny list, session details — so the VC isn't hit with parallel requests.</p>
-<p>The <strong>tab icons along the bottom of the screen are the progress indicator</strong>. They start dim and brighten as each tab's data arrives. Once every tab icon is lit, the initial load is complete.</p>
-<p>Tabs are allowed to reprioritise the API flow — tapping a tab tells the handler to jump that tab's data to the front of the queue. This is intentional and is what makes navigation feel responsive once the app is warmed up. During the <em>initial</em> load, however, it can interrupt the ordered sequence and cause one or more API calls to fail.</p>
-<p>You will know this has happened if you see:</p>
-<ul>
-    <li>A rapid <strong>"brrrrrp"</strong> burst of haptic feedback</li>
-    <li>The <strong>system tab error counter turning red</strong></li>
-    <li>Missing or incomplete data on one or more tabs</li>
-</ul>
+<h3>What does the loading bar at the top of the screen mean?</h3>
+<p>NoCentral fetches your cluster's data through a sequence of API calls to the Virtual Controller. While that's happening, a thin coloured progress strip is shown at the top of the screen.</p>
+<p>The bar is <strong>layered</strong> — it runs in three stages, each in a progressively darker shade of blue:</p>
+<ol>
+    <li><strong>Light blue — Critical path.</strong> The data needed to populate the main tabs: cluster summary, firmware, clients, associations, and per-AP details. When this stage finishes the app is fully usable.</li>
+    <li><strong>Mid blue — Enrichment.</strong> Channel quality, per-AP statistics, RF neighbours, performance metrics, and ancillary cluster info.</li>
+    <li><strong>Dark blue — Spectrum data.</strong> Per-AP spectrum scans for the Channel Explorer and channel-detail views. This stage only runs if <strong>Load Spectrum Data</strong> is enabled in Settings (on by default).</li>
+</ol>
+<p>Once a stage completes, its bar stays filled while the next stage grows over the top. Mid-load you'll typically see two abutting shades — a finished stage behind, an active stage in front. The full load completes in around 16 seconds on a healthy mid-sized cluster.</p>
 <div class="tip">
-    <strong>The fix:</strong> wait for all tab icons to brighten before tapping around. On a typical site this takes only a few seconds. Once the initial load is done, switching tabs and letting them reprioritise the queue works exactly as designed.
+    You can freely tap around the app while loading — it does not interrupt the sequence. Once a tab's data is available, that tab will populate; tabs that depend on later stages will fill in as the bar progresses.
 </div>
-<p>If you have already triggered the error state, pull to refresh on any tab — or log out and back in — to restart a clean load sequence.</p>
+
+<h3>What is the Hierarchy tab?</h3>
+<p>Hierarchy is a tree view of your cluster, ordered the way you'd reason about it physically: cluster at the top, APs underneath, radios under each AP, and clients under each radio. It's the quickest way to see at a glance which AP a client is on, which radio it's using, and the channel and bandwidth that radio is operating at.</p>
+<p>Performance issues are flagged inline: a yellow warning triangle appears on any client row where the client meets the same thresholds used by the Performance tab. Radios in monitor mode are flagged in orange.</p>
+<p>A wired topology overlay is also available, showing how each AP is connected back through your switching infrastructure where that information is visible to the VC.</p>
+
+<h3>What is the Channel Explorer?</h3>
+<p>The <strong>Channels</strong> tab presents a WiFi-Explorer-style view of every AP radio in your cluster, drawn across the 2.4, 5, and 6 GHz bands. Each AP radio appears as a bar:</p>
+<ul>
+    <li><strong>Bar position</strong> — the channel the radio is operating on</li>
+    <li><strong>Bar width</strong> — the bonded channel width (20, 40, 80, or 160 MHz)</li>
+    <li><strong>Bar height</strong> — the transmit power in dBm</li>
+    <li><strong>Diagonal stripe</strong> — marks the primary 20 MHz channel within a bonded block</li>
+</ul>
+<p>Sub-band shading along the top and baseline distinguishes ISM, UNII-1 through UNII-8, DFS channels, and 6 GHz PSC channels. Tap any AP bar to open the <strong>Channel Detail</strong> card for that channel, which shows utilisation, SNIR, noise floor, interference breakdown, and any neighbouring SSIDs on the same channel.</p>
+<p>For bonded channels wider than 20 MHz, the Channel Detail card includes a sub-channel picker — a row of chips for each 20 MHz block within the bond, coloured by per-block quality so you can immediately see which sub-channel is dragging the overall channel down.</p>
+<p>When Load Spectrum Data is enabled, foreign and rogue SSIDs detected by your APs are overlaid on the chart as translucent ghost bars on a separate RSSI scale on the right gutter. Footer chips let you filter the view to your own radios, foreign SSIDs only, or rogue SSIDs only.</p>
+
+<h3>What is the Spectrum data toggle in Settings?</h3>
+<p>Spectrum data is an additional set of API calls that NoCentral makes against each online AP to retrieve detailed RF information — channel quality scores, SNIR, non-WiFi interference breakdown (Bluetooth, microwave, cordless phones, LTE-U, etc.), active interferers, and recent spectrum alerts.</p>
+<p>This is the data that powers:</p>
+<ul>
+    <li>The Spectrum sections in <strong>AP Detail</strong></li>
+    <li>The detailed metrics shown when tapping a channel in <strong>Channel Explorer</strong> or <strong>Channel Quality</strong></li>
+    <li>Foreign and rogue SSID overlays in Channel Explorer</li>
+    <li>Spectrum alerts in the <strong>Logs</strong> view</li>
+</ul>
+<p>It runs as a third loading stage <em>after</em> the rest of the cluster data is ready, so the app stays usable while it completes. On a 12-AP cluster it adds roughly 3–5 seconds to the overall load time.</p>
+<div class="tip">
+    If you're on a larger cluster or simply want the fastest possible refresh time, you can turn this off in <strong>Settings → Load Spectrum Data</strong>. The spectrum sections in the app will then show a placeholder explaining that spectrum data is disabled, and overall load time will drop.
+</div>
+
+<h3>Why do some tabs return errors if I tap them too quickly after login?</h3>
+<p>Earlier versions of NoCentral could lose data if you tapped through tabs too aggressively during the initial load. This is no longer the case — the current version uses a fully serialised API queue inside a centralised data controller, and tapping tabs while loading is safe.</p>
+<p>If you do still see API errors, this is almost always a sign that your Virtual Controller is struggling to keep up with the rate of requests. See <strong>Common Issues → Adjusting the API call gap</strong> below.</p>
 
 <h3>How accurate is RF Location?</h3>
 <p>RF Location is a <strong>probability estimator, not a precision locator</strong>. It does not put a pin on a neighbour AP or client the way GPS would. For each detected RF neighbour, it takes the RSSI values reported by your own APs and computes a range of likely distances and directions — a probable <em>area</em>, with a minimum and maximum bound, rather than a coordinate.</p>
@@ -128,16 +162,21 @@
     <strong>Best use:</strong> RF Location is most useful for narrowing a search — pointing you in the right general direction — before walking the area with a handheld scanner to pin down the exact source.
 </div>
 
-<h3>Does NoCentral access my location on macOS?</h3>
-<p>The native macOS app does not request location access. The RF Location map centers on the continental United States until you manually pan or zoom.</p>
-<p>On Apple Silicon Macs, if you have installed the iOS version of NoCentral from the App Store, macOS may prompt for location permission depending on your system configuration. If this occurs, location is determined by macOS using available network signals — not GPS hardware — and is used only to center the map. It is never stored or transmitted. You can revoke access at any time in System Settings → Privacy &amp; Security → Location Services → NoCentral.</p>
+<h3>What does the RF Neighbors tab show?</h3>
+<p>RF Neighbors is the cluster's complete view of every other Wi-Fi network and device its radios can hear — your own SSIDs, foreign networks, and any APs that have been classified as rogue. It's organised by SSID, with each SSID expanding to show the individual BSSIDs detected and which of your own APs is hearing them.</p>
+<p>The data is aggregated from every online AP in your cluster, not just from the Virtual Controller AP. This is important: a single AP's view of the RF environment is heavily biased toward whichever band it happens to be scanning on, and the VC's own radio is usually serving clients rather than monitoring. By gathering scan results from each AP and merging them — keeping the strongest signal where the same neighbour is heard by multiple APs — NoCentral gives you a complete picture across 2.4, 5, and 6 GHz.</p>
+
+<h3>Does NoCentral access my location?</h3>
+<p>On iOS and iPadOS, the app requests your device location to centre the RF Location map on your current position when you first open it. Permission can be granted or revoked at any time in <strong>Settings → Privacy &amp; Security → Location Services → NoCentral</strong>.</p>
+<p>On Apple Silicon Macs running the app as "Designed for iPad", macOS may prompt for location permission depending on your system configuration. If it does, location is determined by macOS using available network signals rather than GPS hardware, and is used only to centre the map.</p>
+<p>Your location is never stored on your device and never transmitted off the device.</p>
 
 <h3>What does the amber warning triangle on an AP card mean?</h3>
 <p>An amber triangle indicates a <strong>constrained AP model</strong> — one with a known firmware ceiling below the final AOS 8 release (8.13). The AP is not broken or offline; it simply cannot run firmware above its supported maximum train.</p>
-<p>Tap the AP card to open its detail view. The <strong>Version Support</strong> section shows the exact minimum and maximum supported firmware versions for that model. If your cluster is running firmware within that range, the AP is fully operational. If you are planning a firmware upgrade, check the <strong>Upgrade Planner</strong> tab first.</p>
+<p>Tap the AP card to open its detail view. The <strong>Version Support</strong> section shows the exact minimum and maximum supported firmware versions for that model. If your cluster is running firmware within that range, the AP is fully operational. If you are planning a firmware upgrade, check the <strong>Upgrade Planner</strong> first.</p>
 
 <h3>What is the Upgrade Planner?</h3>
-<p>The <strong>Upgrade</strong> tab helps you understand the impact of a firmware upgrade on your AP fleet before you commit to it.</p>
+<p>The <strong>Upgrade Planner</strong> helps you understand the impact of a firmware upgrade on your AP fleet before you commit to it. It opens from the Home &amp; Tools tab.</p>
 <ul>
     <li><strong>Current State</strong> — shows how many APs in your cluster have known firmware constraints</li>
     <li><strong>Firmware Upgrade Simulator</strong> — select a target firmware train (8.10, 8.11, 8.12, or 8.13) and see immediately which APs would remain supported and which would not</li>
@@ -151,7 +190,7 @@
 <ul>
     <li>Client history is stored only on your device and never transmitted</li>
     <li>The retention period is configurable in <strong>Settings → Client History</strong> (default 90 days)</li>
-    <li>Individual entries can be deleted by swiping left on iOS, or via the context menu on macOS</li>
+    <li>Individual entries can be deleted by swiping left</li>
     <li>All offline clients for a site can be cleared at once from the section header menu</li>
 </ul>
 
@@ -182,7 +221,7 @@
 <h3>App crashes or freezes</h3>
 <ul>
     <li>Force quit and restart the app</li>
-    <li>Verify your iOS/macOS version meets the minimum requirements</li>
+    <li>Verify your iOS version meets the minimum requirements</li>
     <li>Very large clusters (100+ APs) may experience slower load times</li>
 </ul>
 
@@ -204,7 +243,7 @@
 
 <h4>Default values</h4>
 <ul>
-    <li><strong>0ms</strong> — default for standard (non-Central-managed) clusters. Tested clean on well-specified hardware.</li>
+    <li><strong>0ms</strong> — default for standard (non-Central-managed) clusters. With the current fully serialised API architecture, most clusters run cleanly at 0ms.</li>
     <li><strong>50ms</strong> — automatically applied for Aruba Central-managed clusters, which carry additional overhead from the Central management plane.</li>
 </ul>
 
@@ -249,15 +288,11 @@
 
 <h2>Known Limitations</h2>
 
-<div class="important">
-    <strong>Triband APs:</strong> AP-6xx series with three radios currently only show radio0 and radio1 statistics. Radio2 support is not yet implemented — no AP-6xx hardware is available for development testing.
-</div>
-
 <ul>
     <li>Large clusters may load slowly — the app is querying the VC for every AP and client in sequence</li>
     <li>Campus Controllers: not supported (IAP only)</li>
     <li>Mobility Conductors: not supported (IAP only)</li>
-    <li>AP compatibility matrix covers most AP-3xx and AP-5xx models. Coverage for very new or discontinued models may be incomplete.</li>
+    <li>AP compatibility matrix covers most AP-3xx, AP-5xx, and AP-6xx models. Coverage for very new or discontinued models may be incomplete.</li>
     <li>At the time of writing, AOS 8.13 is the final major version of AOS 8 — future development and compatibility depends on HPE Aruba.</li>
 </ul>
 
@@ -266,7 +301,7 @@
 <h3>Reporting Bugs</h3>
 <p>Email <a href="mailto:nocentralsupport@gmail.com">nocentralsupport@gmail.com</a> with:</p>
 <ul>
-    <li>iOS/macOS version</li>
+    <li>iOS version</li>
     <li>Aruba IAP model and AOS version</li>
     <li>Detailed steps to reproduce the issue</li>
     <li>Screenshots if applicable</li>
@@ -287,8 +322,8 @@
 <hr>
 
 <p style="color: #666; font-size: 0.9em; margin-top: 40px;">
-    <strong>Privacy:</strong> NoCentral does not collect, store, or transmit your personal data or network information. On iOS, and in some configurations on Apple Silicon Macs, the app may request your device location to center the map feature (optional, never stored or transmitted). The app downloads a public AP compatibility database from this support site — no personal data is transmitted. All credentials are stored locally in your device's Keychain. See our <a href="privacy.html">Privacy Policy</a> for full details.<br>
-    <strong>Last updated:</strong> April 2026
+    <strong>Privacy:</strong> NoCentral does not collect, store, or transmit your personal data or network information. The app may request your device location to centre the RF Location map (optional, never stored or transmitted). The app downloads a public AP compatibility database from this support site — no personal data is transmitted. All credentials are stored locally in your device's Keychain. See our <a href="privacy.html">Privacy Policy</a> for full details.<br>
+    <strong>Last updated:</strong> May 2026
 </p>
 
 </body>
