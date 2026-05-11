@@ -1,0 +1,278 @@
+<!--
+  NoCentral — Terms of Use
+  Draft assembled by an AI assistant. Recommend legal review before publishing
+  in jurisdictions outside the author's own.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Use — NoCentral</title>
+  <meta name="description" content="Terms of Use for the NoCentral iOS application — authorized use, no warranty, limitation of liability, indemnification.">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #1a1a1a;
+      --muted: #5a5a5a;
+      --rule: #e5e5e5;
+      --accent: #0d8a8a;
+      --code-bg: #f4f4f4;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212;
+        --fg: #e8e8e8;
+        --muted: #9a9a9a;
+        --rule: #2a2a2a;
+        --accent: #4dd4d4;
+        --code-bg: #1e1e1e;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 20px 64px;
+    }
+
+    nav.top, nav.bottom {
+      font-size: 14px;
+      color: var(--muted);
+      padding: 12px 0;
+      border-bottom: 1px solid var(--rule);
+      margin-bottom: 24px;
+    }
+    nav.bottom {
+      border-bottom: 0;
+      border-top: 1px solid var(--rule);
+      margin-top: 48px;
+      margin-bottom: 0;
+      padding-top: 16px;
+    }
+    nav a { color: var(--accent); text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    nav .sep { color: var(--muted); margin: 0 8px; }
+
+    h1 {
+      font-size: 30px;
+      margin: 24px 0 8px;
+      letter-spacing: -0.01em;
+    }
+    h2 {
+      font-size: 20px;
+      margin: 36px 0 8px;
+      letter-spacing: -0.005em;
+    }
+    .updated {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    p, ul, ol { margin: 12px 0; }
+    ul, ol { padding-left: 24px; }
+    li { margin: 4px 0; }
+
+    a { color: var(--accent); }
+
+    strong { font-weight: 600; }
+    em { font-style: italic; }
+
+    code {
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 16px 16px 48px; }
+      h1 { font-size: 26px; }
+      h2 { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <nav class="top">
+      <a href="/">← Support home</a>
+    </nav>
+
+    <h1>NoCentral — Terms of Use</h1>
+    <p class="updated"><strong>Last updated:</strong> 2026-05-11</p>
+
+    <p>These Terms of Use (&ldquo;Terms&rdquo;) govern your use of the NoCentral iOS
+      application (&ldquo;the App&rdquo;) and the support resources at
+      <a href="https://nocentral.github.io">https://nocentral.github.io</a>
+      (&ldquo;the Support Site&rdquo;). By installing or using the App, you agree to
+      these Terms. If you do not agree, do not install or use the App.</p>
+
+    <h2>1. What NoCentral is</h2>
+    <p>NoCentral is a read-mostly administrative client for HPE Aruba Networking
+      Instant (&ldquo;Aruba Instant&rdquo;) Virtual Controller clusters. It connects to
+      a Virtual Controller you own or are authorized to manage, reads operational
+      data the controller has already collected, and presents it on iPad and
+      iPhone.</p>
+    <p>The App is intended for Wi-Fi administrators, network professionals, and
+      educational use by individuals working with their own Aruba Instant
+      deployments.</p>
+
+    <h2>2. Authorized use only</h2>
+    <p>You may use the App <strong>only</strong> to monitor and administer Aruba
+      Instant networks that you:</p>
+    <ul>
+      <li>Own; or</li>
+      <li>Have explicit written or contractual authorization to administer; or</li>
+      <li>Are testing in a lab environment that you own or operate.</li>
+    </ul>
+    <p>Use of the App against networks or controllers without proper authorization
+      is prohibited.</p>
+    <p>The App may surface information about neighbouring (non-cluster) Wi-Fi
+      networks that your own Aruba access points have detected as part of their
+      normal RF scanning. This is the same data the Aruba controller already
+      collects and displays in its own administrative interface. You agree to use
+      this neighbour information only for lawful purposes, including but not
+      limited to RF planning, interference diagnosis, and security assessment of
+      networks you administer.</p>
+    <p>You are responsible for compliance with all applicable local, regional, and
+      national laws governing radio observation, network monitoring, and
+      cybersecurity activity in your jurisdiction. Laws vary significantly between
+      jurisdictions. NoCentral cannot determine what is lawful in your location.</p>
+
+    <h2>3. What NoCentral does not do</h2>
+    <p>For clarity:</p>
+    <ul>
+      <li>NoCentral does <strong>not</strong> perform independent Wi-Fi scanning,
+        packet capture, monitor-mode reception, or deep packet inspection.</li>
+      <li>NoCentral does <strong>not</strong> transmit deauthentication frames,
+        association attempts, probe responses, or any active reconnaissance
+        against networks it is not authorized to administer.</li>
+      <li>NoCentral does <strong>not</strong> attempt to bypass authentication,
+        exploit vulnerabilities, or otherwise compromise networks or devices.</li>
+      <li>NoCentral does <strong>not</strong> automatically share, upload, or
+        publish any observation data.</li>
+    </ul>
+    <p>All data the App displays originates from your own Aruba Virtual
+      Controller&rsquo;s existing observation and reporting capabilities, accessed
+      via Aruba&rsquo;s documented REST API.</p>
+
+    <h2>4. User responsibilities</h2>
+    <p>You agree:</p>
+    <ul>
+      <li>To use credentials and access only as authorized by the network owner.</li>
+      <li>Not to use the App to perform surveillance, reconnaissance, or attacks
+        against third-party networks.</li>
+      <li>Not to reverse engineer the App or attempt to circumvent its security
+        features or intended use.</li>
+      <li>Not to use undocumented Aruba REST API endpoints, exploit firmware
+        vulnerabilities, or extract data from the App for unlawful purposes.</li>
+      <li>To accept responsibility for any data, configuration changes, or
+        operational impact resulting from your use of the App.</li>
+    </ul>
+
+    <h2>5. No warranty</h2>
+    <p>THE APP IS PROVIDED &ldquo;AS IS&rdquo; AND &ldquo;AS AVAILABLE&rdquo; WITHOUT
+      WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. To the maximum extent permitted by
+      applicable law, the author disclaims all warranties including:</p>
+    <ul>
+      <li>Fitness for a particular purpose</li>
+      <li>Merchantability</li>
+      <li>Non-infringement</li>
+      <li>Accuracy or completeness of any data displayed</li>
+      <li>Continuous availability or freedom from defects</li>
+      <li>Compatibility with any particular Aruba firmware version, hardware
+        model, or configuration</li>
+    </ul>
+    <p>The App is developed and maintained as a personal project. There is no
+      service-level agreement, no guaranteed support, and no commitment to release
+      updates, fixes, or new features on any timeline.</p>
+
+    <h2>6. Limitation of liability</h2>
+    <p>To the maximum extent permitted by applicable law, the author shall not be
+      liable for any damages whatsoever &mdash; including direct, indirect,
+      incidental, special, consequential, exemplary, or punitive damages &mdash;
+      arising from or related to:</p>
+    <ul>
+      <li>Your use of, or inability to use, the App;</li>
+      <li>Any data the App displays, omits, or misrepresents;</li>
+      <li>Any configuration changes the App makes (or fails to make) to your
+        Aruba cluster;</li>
+      <li>Network downtime, data loss, security incidents, or third-party claims
+        arising from your use of the App;</li>
+      <li>Any reliance you place on output produced by the App.</li>
+    </ul>
+    <p>This limitation applies even if the author has been advised of the
+      possibility of such damages.</p>
+
+    <h2>7. Indemnification</h2>
+    <p>You agree to indemnify, defend, and hold harmless the author from and
+      against any claims, damages, liabilities, costs, and expenses (including
+      reasonable legal fees) arising from:</p>
+    <ul>
+      <li>Your use of the App;</li>
+      <li>Your violation of these Terms;</li>
+      <li>Your violation of any applicable law;</li>
+      <li>Your violation of any third party&rsquo;s rights, including network
+        operators whose networks you observed without authorization.</li>
+    </ul>
+
+    <h2>8. Not a substitute for professional advice</h2>
+    <p>The App is not a substitute for a professional Wi-Fi survey, security
+      assessment, penetration test, or compliance audit. Any operational or
+      security decisions you make based on the App&rsquo;s output are your own
+      responsibility.</p>
+
+    <h2>9. Modifications</h2>
+    <p>The author may modify these Terms at any time by posting an updated version
+      on the Support Site. The &ldquo;Last updated&rdquo; date at the top of this page
+      reflects the most recent revision. Continued use of the App after a
+      revision constitutes acceptance of the updated Terms.</p>
+    <p>The author may modify, discontinue, or remove any feature of the App or
+      the Support Site at any time without notice.</p>
+
+    <h2>10. Apple App Store</h2>
+    <p>If you obtained the App through Apple&rsquo;s App Store or TestFlight:</p>
+    <ul>
+      <li>Apple is not a party to these Terms and has no obligation to provide
+        maintenance or support for the App.</li>
+      <li>These Terms are between you and the author, not between you and Apple.</li>
+      <li>Apple&rsquo;s own Licensed Application End User License Agreement also
+        applies.</li>
+    </ul>
+
+    <h2>11. Governing law</h2>
+    <p>These Terms are governed by the laws of the author&rsquo;s jurisdiction of
+      residence, without regard to its conflict-of-law principles. Any dispute
+      arising from these Terms or your use of the App shall be resolved in the
+      courts of that jurisdiction, except where prohibited by applicable consumer
+      protection law.</p>
+
+    <h2>12. Severability</h2>
+    <p>If any provision of these Terms is found to be unenforceable, the remaining
+      provisions shall remain in full force and effect.</p>
+
+    <h2>13. Contact</h2>
+    <p>Questions about these Terms or about the App can be raised via the
+      <a href="https://nocentral.github.io">Support Site</a>.</p>
+
+    <nav class="bottom">
+      <a href="/">← Support home</a>
+    </nav>
+
+  </div>
+</body>
+</html>
