@@ -59,7 +59,7 @@
 <strong>Typical response time:</strong> 1–2 weeks for non-critical issues<br>
 <strong>Priority:</strong> Critical bugs affecting core functionality first, then everything else</p>
 
-<h2>Before Contacting Support</h2>
+<h2 id="supported-firmware">Before Contacting Support</h2>
 <p>Please verify the following first:</p>
 <ul>
     <li>Aruba IAP cluster is running AOS 8 (versions 8.10–8.13) — check with <code>show version</code></li>
@@ -124,7 +124,7 @@
 <p>The site editor includes a <strong>Test API</strong> button that runs a pre-login REST probe against your Virtual Controller and shows the raw exchange — login, a <code>show version</code> call, and logout, with full request and response capture for each step. If you've configured both a primary and a fallback IP, it tests them side by side.</p>
 <p>Use it to validate VC reachability and REST API configuration before the main app even touches the site. The <strong>Copy log</strong> button puts the full transcript onto the clipboard — paste it into a support email and most diagnoses become a five-minute job.</p>
 
-<h3>What is the fallback VC IP?</h3>
+<h3 id="fallback-ip">What is the fallback VC IP?</h3>
 <p>Each site can carry an optional secondary VC address. If the primary IP doesn't respond — for example after a cluster reboot, a floating-IP rebind failure, or a brief network blip — NoCentral silently retries against the fallback and shows a brief notice once you're connected.</p>
 <p>If the fallback is used on two consecutive sessions, the app will prompt to swap it with the primary. On sites that don't yet have a fallback, a one-time tip suggests adding one on first connect.</p>
 <div class="tip">
@@ -248,7 +248,7 @@
 
 <h2>Common Issues</h2>
 
-<h3>Can't connect to Virtual Controller</h3>
+<h3 id="cant-connect">Can't connect to Virtual Controller</h3>
 <ul>
     <li>Run <strong>Test API</strong> from the site editor first — it will tell you precisely where the problem is (network, REST, auth, or firmware)</li>
     <li>Verify REST API is enabled: <code>allow-rest-api</code> then <code>commit apply</code></li>
@@ -258,11 +258,19 @@
     <li>If you have a fallback IP configured, Test API will also probe it side-by-side</li>
 </ul>
 
-<h3>Login fails with correct credentials</h3>
+<h3 id="login-fails">Login fails with correct credentials</h3>
 <ul>
     <li>Test credentials via the VC web UI first (https://VC-IP:4343)</li>
     <li>Sessions expire after 15 minutes of inactivity — try logging in again</li>
     <li>If you recently changed the password, delete and re-add the site in NoCentral</li>
+</ul>
+
+<h3 id="session-expiry">VC session timed out</h3>
+<p>Aruba Virtual Controllers sign a REST session out after roughly <strong>15 minutes of inactivity</strong>. When that happens mid-session, NoCentral shows a "session timed out" notice and returns you to the login screen. This is normal VC behaviour, not a fault.</p>
+<ul>
+    <li>Simply log in again — NoCentral picks up where you left off.</li>
+    <li>While the app is actively loading or refreshing data, the session is kept alive automatically. Timeouts only occur after a genuine idle period.</li>
+    <li>If you are signed out far sooner than 15 minutes, another client (the VC web UI, or a second device running NoCentral) may be sharing the same account and invalidating the session. Use a separate account per device where possible.</li>
 </ul>
 
 <h3>Missing APs or incomplete data</h3>
@@ -279,7 +287,7 @@
     <li>Very large clusters (100+ APs) may experience slower load times</li>
 </ul>
 
-<h3>Load failures, stalls, incomplete data, or API errors — adjusting the API call gap</h3>
+<h3 id="api-call-gap">Load failures, stalls, incomplete data, or API errors — adjusting the API call gap</h3>
 
 <p>NoCentral queries the Virtual Controller with a sequence of API calls during each load. The VC handles these calls one at a time, and on some clusters it can struggle to keep up, resulting in:</p>
 <ul>
@@ -317,7 +325,7 @@
     <strong>Note:</strong> This is based on observed behaviour across a small number of test environments, not formally documented Aruba specifications. HPE Aruba's own guidance recommends IAP VC clusters do not exceed 128 APs in a single L2 cluster due to general performance constraints — NoCentral's API load is one additional factor within that broader picture. Use whatever value works reliably for your environment.
 </div>
 
-<h3>Intermittent failures on Aruba Central-managed clusters</h3>
+<h3 id="central-managed">Intermittent failures on Aruba Central-managed clusters</h3>
 
 <p>On clusters enrolled in Aruba Central, NoCentral may experience connection failures, API errors, or incomplete loads that do not occur on locally-managed clusters. These are conditions of the Virtual Controller itself — not a NoCentral issue.</p>
 
