@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoCentral API Reference</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #333;
+        }
+        h1 { color: #1a1a1a; }
+        h2 { color: #2a2a2a; margin-top: 30px; }
+        h3 { color: #444; margin-top: 20px; }
+        .tip {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 12px 16px;
+            margin: 20px 0;
+        }
+        .important {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 12px 16px;
+            margin: 20px 0;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 12px 0 24px;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 12px;
+            border-bottom: 1px solid #e5e5e5;
+            vertical-align: top;
+        }
+        th {
+            background: #fafafa;
+            font-weight: 600;
+        }
+        td code {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+<h1>NoCentral API Reference</h1>
+
+<p><strong>Last updated:</strong> May 25, 2026</p>
+
+<p>This page lists every Aruba Virtual Controller call NoCentral makes. It exists for transparency &mdash; so administrators can review exactly what the app does on their network before connecting.</p>
+
+<div class="tip">
+    <strong>Read-only by design.</strong> Every call below is either an authentication endpoint or a <code>show</code>-style query. There is no <code>write</code>, <code>configure</code>, <code>commit</code>, or any other state-changing path in the codebase. Anything that would change the cluster's state is offered as copy-and-paste CLI text instead &mdash; you run it manually if you want to.
+</div>
+
+<h2>Transport</h2>
+
+<p>All calls go to the Virtual Controller's REST API on TCP port <strong>4343</strong> over HTTPS, on the local network only. The VC presents a self-signed HPE certificate &mdash; NoCentral handles that automatically without modifying the device's trust store. Calls are issued serially (the VC rejects concurrent requests).</p>
+
+<h2>Authentication endpoints</h2>
+
+<table>
+    <thead>
+        <tr><th>Endpoint</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>POST /rest/login</code></td><td>Exchanges username + password for a session ID. Credentials come from the system Keychain; the session ID is held in memory only and discarded on disconnect or app close.</td></tr>
+        <tr><td><code>POST /rest/logout</code></td><td>Tears down the session on the controller. Always called on user-initiated disconnect.</td></tr>
+        <tr><td><code>POST /rest/show-cmd</code></td><td>The single channel through which NoCentral issues every read query below. Each entry in the tables that follow is a value passed to this endpoint's <code>cmd=</code> parameter.</td></tr>
+    </tbody>
+</table>
+
+<h2>Cluster identity &amp; configuration</h2>
+
+<table>
+    <thead>
+        <tr><th>Command</th><th>What NoCentral uses it for</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>show version</code></td><td>Firmware version, AOS train, model of the Virtual Controller. Drives the Firmware tool and the connection-screen version pill.</td></tr>
+        <tr><td><code>show summary</code></td><td>Cluster name, country code, total AP count, total client count. Populates the site pill before the full AP list arrives.</td></tr>
+        <tr><td><code>show running-config</code></td><td>Full raw configuration. Displayed in Config Viewer; also parsed by VSG Check to flag deviations from Aruba Validated Solution Guide best practices.</td></tr>
+        <tr><td><code>show interface</code></td><td>VC management interface IP and status.</td></tr>
+        <tr><td><code>show network</code></td><td>Configured SSIDs, security, VLAN bindings &mdash; used by Channel Detail and the Config view.</td></tr>
+    </tbody>
+</table>
+
+<h2>Access points</h2>
+
+<table>
+    <thead>
+        <tr><th>Command</th><th>What NoCentral uses it for</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>show aps</code></td><td>Cluster-wide AP list with model, IP, channel, TX power, utilisation, and noise floor per radio. The primary AP-state query.</td></tr>
+        <tr><td><code>show aps power-monitor</code></td><td>Live PoE draw per AP. Surfaced in AP detail and the PoE column.</td></tr>
+        <tr><td><code>show allowed-aps</code></td><td>Allowlist of APs permitted to join the cluster. Used to identify offline APs that have a slot reserved but aren't currently up.</td></tr>
+        <tr><td><code>show ap bss-table</code></td><td>Per-AP list of broadcast BSSIDs, with band, PHY, bonded channel width, and EIRP. Authoritative source for 20 / 40 / 80 / 160 MHz width detection.</td></tr>
+        <tr><td><code>show ap association</code></td><td>Clients currently associated to a given AP, including BSSID, signal, retry stats. Drives the AP-detail client list.</td></tr>
+        <tr><td><code>show ap debug radio-state</code></td><td>Conducted TX power, noise floor, and channel-busy statistics per radio. Fallback when <code>show aps</code> data is blanked.</td></tr>
+        <tr><td><code>show ap debug driver-config</code></td><td>Authoritative radio mode (AP vs Air Monitor) and channel assignment. Used to repair the rare case where <code>show aps</code> reports "Scanning" for an active radio.</td></tr>
+        <tr><td><code>show ap debug lldp info</code></td><td>LLDP neighbour data per AP &mdash; identifies the upstream switch, port, allocated PoE wattage, and switch capability flags.</td></tr>
+        <tr><td><code>show ap debug cloud-server</code></td><td>Aruba Central / Activate registration state for the cluster. Used to diagnose the "expired subscription" failure mode.</td></tr>
+    </tbody>
+</table>
+
+<h2>Clients</h2>
+
+<table>
+    <thead>
+        <tr><th>Command</th><th>What NoCentral uses it for</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>show clients</code></td><td>Wireless client list with IP, MAC, SSID, AP, signal, speed, PHY type, authentication.</td></tr>
+        <tr><td><code>show clients debug</code></td><td>Extended wireless client detail including encryption flags and association timestamps.</td></tr>
+        <tr><td><code>show clients wired</code></td><td>Wired clients learned through AP Ethernet ports.</td></tr>
+        <tr><td><code>show clients wired debug</code></td><td>Extended wired-client detail (port, VLAN, learn time).</td></tr>
+        <tr><td><code>show stats client &lt;mac&gt;</code></td><td>Per-client live statistics &mdash; signal trace, frame counts, throughput, retry rate, mobility trail. Drives the Performance tab and the live trace in Client Detail.</td></tr>
+        <tr><td><code>show ap debug client-table</code></td><td>Per-AP client table used as a cross-check during the performance analysis.</td></tr>
+        <tr><td><code>show ap roam-cache mac &lt;mac&gt;</code></td><td>Roam history for a specific client &mdash; best-effort, not all AOS versions expose this.</td></tr>
+        <tr><td><code>show datapath session | inc &lt;ip&gt;</code></td><td>Active sessions for a client IP &mdash; on-demand from Client Detail.</td></tr>
+    </tbody>
+</table>
+
+<h2>Channel quality &amp; spectrum</h2>
+
+<table>
+    <thead>
+        <tr><th>Command</th><th>What NoCentral uses it for</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>show ap arm rf-summary</code></td><td>Per-AP ARM (Adaptive Radio Management) summary &mdash; primary channel, quality score, channel busy. The backbone of the Channel Quality tool.</td></tr>
+        <tr><td><code>show ap spectrum status</code></td><td>Distinguishes "Spectrum Monitor" (FFT-active) from "Air Monitor" mode on a per-radio basis.</td></tr>
+        <tr><td><code>show ap spectrum channel-metrics</code></td><td>Per-channel utilisation, WiFi/non-WiFi split, noise floor &mdash; only available from a Spectrum Monitor radio.</td></tr>
+        <tr><td><code>show ap spectrum channel-details</code></td><td>Detailed per-channel breakdown including non-WiFi device contribution. Powers the Channel Detail card.</td></tr>
+        <tr><td><code>show ap spectrum device-list</code></td><td>Non-WiFi RF emitters detected by Spectrum Monitor radios (microwave, Bluetooth, cordless phone, etc.).</td></tr>
+        <tr><td><code>show ap spectrum client-list</code></td><td>Per-channel client load observed by Spectrum Monitor radios.</td></tr>
+        <tr><td><code>show spectrum-alert 100</code></td><td>Recent spectrum alerts (rogue, interference) raised by Spectrum Monitor radios &mdash; cluster-wide, single call.</td></tr>
+    </tbody>
+</table>
+
+<h2>RF environment</h2>
+
+<table>
+    <thead>
+        <tr><th>Command</th><th>What NoCentral uses it for</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>show ap monitor ap-list</code></td><td>Every BSSID detected by the cluster's monitoring radios. Drives RF Neighbors and the Channel View foreign-SSID ghost overlay.</td></tr>
+        <tr><td><code>show ap monitor pot-ap-list</code></td><td>Potential ("pot") AP list &mdash; supplementary detection data feeding RF Neighbors.</td></tr>
+        <tr><td><code>show ids aps</code></td><td>IDS classification (valid / interfering / rogue) for detected neighbour APs.</td></tr>
+        <tr><td><code>show ids clients</code></td><td>IDS-flagged client devices.</td></tr>
+    </tbody>
+</table>
+
+<h2>Security &amp; deny list</h2>
+
+<table>
+    <thead>
+        <tr><th>Command</th><th>What NoCentral uses it for</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>show denylist-client</code></td><td>Current deny-list entries with reason, timestamp, and MAC. Drives the Deny List tool; also feeds the cleanup-script generator (output is shown to you as text &mdash; the app does not run it).</td></tr>
+        <tr><td><code>show log user 200</code></td><td>Authentication log &mdash; pulled on demand from the Deny List tool to show why a specific MAC was denied.</td></tr>
+    </tbody>
+</table>
+
+<h2>Logs &amp; diagnostics</h2>
+
+<table>
+    <thead>
+        <tr><th>Command</th><th>What NoCentral uses it for</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>show log &lt;type&gt; &lt;count&gt;</code></td><td>Filterable event log retrieval &mdash; the Logs tab issues one of these per selected log type (system, security, network, user, etc.) with a user-chosen line count.</td></tr>
+        <tr><td><code>show activate</code></td><td>Aruba Activate cloud registration state &mdash; pulled only when the controller reports it is Activate / Central-managed.</td></tr>
+    </tbody>
+</table>
+
+<h2>Test API tool</h2>
+
+<p>The Settings &rarr; Test API screen lets you send <em>any</em> read-only <code>show</code> command of your choice to the VC and see the raw output. This is the only place where the command is user-supplied; the input is validated to start with <code>show</code> before being passed to <code>POST /rest/show-cmd</code>. The tool exists so administrators can verify what the controller is returning when a NoCentral parser appears to mis-read something.</p>
+
+<div class="important">
+    <strong>What NoCentral does NOT do:</strong> No call writes configuration, no call commits changes, no call reboots APs, no call modifies the VLAN / SSID / radio / security / RADIUS / allow-list / deny-list state. Those operations exist in the Aruba REST API; NoCentral never invokes them. If a future feature ever needed to, it would be opt-in and disclosed in the release notes.
+</div>
+
+<p>See also: <a href="index.html">Support</a> &middot; <a href="documentation.html">Documentation</a> &middot; <a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use</a></p>
+
+</body>
+</html>
