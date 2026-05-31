@@ -133,13 +133,15 @@
 
 <h3>What does the loading bar at the top of the screen mean?</h3>
 <p>NoCentral fetches your cluster's data through a sequence of API calls to the Virtual Controller. While that's happening, a thin coloured progress strip is shown at the top of the screen.</p>
-<p>The bar is <strong>layered</strong> — it runs in three stages, each in a progressively darker shade of blue:</p>
+<p>The bar is <strong>layered</strong> — it runs in stages, each its own colour, and a light haptic pulses once per completed call so the rhythm matches the bar. The first two stages always run; the rest only run when their toggle is enabled in Settings:</p>
 <ol>
-    <li><strong>Light blue — Critical path.</strong> The data needed to populate the main views: cluster summary, firmware, clients, associations, and per-AP details. When this stage finishes the app is fully usable.</li>
-    <li><strong>Mid blue — Enrichment.</strong> Channel quality, per-AP statistics, RF neighbours, performance metrics, and ancillary cluster info.</li>
-    <li><strong>Dark blue — Spectrum data.</strong> Per-AP spectrum scans for Channel View and channel-detail cards. This stage only runs if <strong>Load Spectrum Data</strong> is enabled in Settings (on by default).</li>
+    <li><strong>Core — light blue.</strong> The data needed to populate the main views: cluster summary, firmware, clients, associations, and per-AP details. When this finishes the app is fully usable.</li>
+    <li><strong>Detail — mid blue.</strong> Channel quality, per-AP statistics, RF neighbours, performance metrics, wired-port data, and ancillary cluster info.</li>
+    <li><strong>Spectrum — amber.</strong> Per-AP spectrum scans for Channel View and channel-detail cards. Optional (<strong>Load Spectrum Data</strong>, on by default).</li>
+    <li><strong>BLE — blue.</strong> Per-AP Bluetooth discovery. Optional (<strong>Load BLE Data</strong>, off by default).</li>
+    <li><strong>UCC — green.</strong> Voice/Video (Wi-Fi calling, meeting apps). Optional (<strong>Load UCC Data</strong>, off by default).</li>
 </ol>
-<p>Once a stage completes, its bar stays filled while the next stage grows over the top. Mid-load you'll typically see two abutting shades — a finished stage behind, an active stage in front. The full load completes in around 16 seconds on a healthy mid-sized cluster.</p>
+<p>Once a stage completes its bar stays filled while the next grows over the top. The optional-stage colours match the dots shown next to their toggles in Settings, so the colour tells you which feature is loading. A full core+detail load completes in around 16 seconds on a healthy mid-sized cluster.</p>
 <div class="tip">
     You can freely navigate around the app while loading — it does not interrupt the sequence. Once a view's data is available it will populate; views that depend on later stages will fill in as the bar progresses.
 </div>
@@ -176,8 +178,20 @@
     If you're on a larger cluster or simply want the fastest possible refresh time, you can turn this off in <strong>Settings → Load Spectrum Data</strong>. The spectrum sections in the app will then show a placeholder explaining that spectrum data is disabled, and overall load time will drop.
 </div>
 
+<h3>What is Voice &amp; Video (UCC)?</h3>
+<p>An optional view of the Unified-Communications sessions your cluster can see — Wi-Fi calls, FaceTime, and meeting apps like Teams, Zoom, and Meet. It groups them into <strong>Now</strong> (a call in progress), <strong>Registered</strong> (Wi-Fi calling is ready but idle), and <strong>Recent</strong>. NoCentral distinguishes an active call from an idle registration by watching the encrypted tunnel's traffic counters between refreshes. It's off by default — enable <strong>Load UCC Data</strong> in Settings. The view loads as the green stage on the load bar.</p>
+
+<h3>What is BLE Discovery?</h3>
+<p>An optional Bluetooth Low-Energy scan: each AP reports the BLE radio it has plus the asset tags and beacons it currently hears. When enabled, every AP in the Clients &amp; APs tree gains a BLE radio node, and a dedicated BLE Discovery browser aggregates every device the cluster hears (de-duplicated across APs, with vendor attribution). Enable <strong>Load BLE Data</strong> in Settings; it loads as the blue stage on the load bar.</p>
+
+<h3>What is the Event Log?</h3>
+<p>A per-site record of what happened during your sessions — connection events, API failures, why a session ended, which VC IP was used, and a per-load breakdown (call counts and timing). Open it from the site editor (next to Test API) or <strong>Settings → Advanced Tuning → View Event Log</strong>. If you ever hit an intermittent problem, this is the first thing to check — and you can email it to support in one tap. For the deepest detail, turn on <strong>Verbose API Trace</strong> to record every call.</p>
+
+<h3>Why was I returned to the login screen?</h3>
+<p>For security, NoCentral signs out of the controller when the app goes to the background. To avoid logging you out for a quick glance at another app, there's a grace period — <strong>Settings → Advanced Tuning → Keep session on switch</strong> (default 30 seconds). Come back within that window and your session is preserved; stay away longer and you'll need to log in again. Sending a support email or opening the support site no longer logs you out. The 14-minute inactivity timeout still applies regardless.</p>
+
 <h3>Why do some views return errors if I navigate too quickly after login?</h3>
-<p>Earlier versions of NoCentral could lose data if you navigated through views too aggressively during the initial load. This is no longer the case — the current version uses a fully serialised API queue inside a centralised data controller, and navigating while loading is safe.</p>
+<p>Earlier versions of NoCentral could lose data if you navigated through views too aggressively during the initial load. This is no longer the case — the current version runs every controller request strictly one-at-a-time across all background and on-demand work, so navigating (or opening the Voice/Video page) while loading is safe.</p>
 <p>If you do still see API errors, this is almost always a sign that your Virtual Controller is struggling to keep up with the rate of requests. See <strong>Common Issues → Adjusting the API call gap</strong> below.</p>
 
 <h3>What do the new connection-error dialogs mean?</h3>
