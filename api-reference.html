@@ -58,7 +58,7 @@
 
 <h1>NoCentral API Reference</h1>
 
-<p><strong>Last updated:</strong> May 25, 2026</p>
+<p><strong>Last updated:</strong> May 31, 2026 &mdash; v2.0 (build 0.6.0)</p>
 
 <p>This page lists every Aruba Virtual Controller call NoCentral makes. It exists for transparency &mdash; so administrators can review exactly what the app does on their network before connecting.</p>
 
@@ -163,6 +163,36 @@
         <tr><td><code>show ap monitor pot-ap-list</code></td><td>Potential ("pot") AP list &mdash; supplementary detection data feeding RF Neighbors.</td></tr>
         <tr><td><code>show ids aps</code></td><td>IDS classification (valid / interfering / rogue) for detected neighbour APs.</td></tr>
         <tr><td><code>show ids clients</code></td><td>IDS-flagged client devices.</td></tr>
+    </tbody>
+</table>
+
+<h2>Voice &amp; Video (UCC)</h2>
+
+<p>These run only at the end of a load when <strong>Load UCC Data</strong> is enabled in Site Settings (off by default). They power the Voice/Video view's "active call vs registered" classification.</p>
+
+<table>
+    <thead>
+        <tr><th>Command</th><th>What NoCentral uses it for</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>show ucm hashtable</code></td><td>Cluster-wide. Identifies which clients are running Unified Communications apps (Wi-Fi calling, FaceTime, Teams/Zoom/Meet, etc.) and the app/server each is using.</td></tr>
+        <tr><td><code>show wificall-dns-patterns</code></td><td>Cluster-wide. The carrier ePDG DNS patterns the controller uses to recognise Wi-Fi-calling traffic. Fetched once per session and cached.</td></tr>
+        <tr><td><code>show ucm cdrs</code></td><td>Per-AP (only APs hosting a UC-classified client). Call Detail Records &mdash; the primary "is a call up?" signal; sees encrypted streams (Wi-Fi Calling, SRTP) that the datapath filter drops.</td></tr>
+        <tr><td><code>show datapath session ucc</code></td><td>Per-AP. Byte/packet counters for UC media flows the AP can deep-inspect &mdash; a secondary throughput signal.</td></tr>
+        <tr><td><code>show datapath session | inc 4500</code></td><td>Per-AP. IPsec (UDP/4500) tunnel counters. Compared against the previous refresh to tell an <em>active</em> Wi-Fi call from an <em>idle</em> ePDG registration.</td></tr>
+    </tbody>
+</table>
+
+<h2>Bluetooth (BLE) discovery</h2>
+
+<p>Runs only at the end of a load when <strong>Load BLE Data</strong> is enabled in Site Settings (off by default). Powers the BLE radios shown under each AP in the Clients &amp; APs tree and the BLE Discovery browser.</p>
+
+<table>
+    <thead>
+        <tr><th>Command</th><th>What NoCentral uses it for</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>show ap debug ble-table all</code></td><td>Per-AP. The AP's onboard BLE radio plus every beacon-class BLE device it currently hears, with this AP's RSSI. Fanned out to every online AP, then aggregated by device MAC across the cluster (the AP's own radios are filtered out).</td></tr>
     </tbody>
 </table>
 
