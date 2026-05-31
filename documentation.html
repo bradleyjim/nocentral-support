@@ -50,7 +50,7 @@
 
 <h1>NoCentral Documentation</h1>
 
-<p><strong>Version:</strong> 2.0 (build 0.4) &middot; <strong>Last updated:</strong> May 11, 2026</p>
+<p><strong>Version:</strong> 2.0 (build 0.6.0) &middot; <strong>Last updated:</strong> May 31, 2026</p>
 
 <p>This page is the screen-by-screen user guide. For installation, contact, and FAQ-style troubleshooting see the <a href="index.html">Support</a> page.</p>
 
@@ -61,6 +61,17 @@
 <h2>What's new in 2.0</h2>
 
 <p>Version 2.0 is the largest release since the original ship. Headlines below — most are described in detail later on this page.</p>
+
+<h3>Latest additions (build 0.6.0)</h3>
+<ul>
+    <li><strong>Voice &amp; Video (UCC)</strong> — a live view of Wi-Fi calls, FaceTime, and meeting-app sessions the cluster can see, split into Now / Registered / Recent. Optional (off by default).</li>
+    <li><strong>BLE Discovery</strong> — each AP's Bluetooth radio and the beacon/asset-tag devices it hears, shown under every AP in the tree and in a dedicated browser. Optional (off by default).</li>
+    <li><strong>Naming &amp; icons</strong> — pin a custom name and icon to any client or BLE device from its detail card; the choice follows the device's MAC.</li>
+    <li><strong>Event Log</strong> — a per-site record of connection events, API failures, logout reasons, and which VC IP was used, with one-tap email to support.</li>
+    <li><strong>Strict call serialisation</strong> — every controller request now runs one-at-a-time across all background and on-demand work, closing a window where overlapping requests could make the VC start rejecting calls.</li>
+    <li><strong>Rebuilt load bar</strong> — shows every stage (including BLE), colour-codes the optional stages, and keeps the haptics in step with the bar.</li>
+    <li><strong>Fewer surprise logouts</strong> — a configurable grace period tolerates brief app switches, and emailing a support log no longer ends your session.</li>
+</ul>
 
 <h3>Navigation rebuilt around the platform</h3>
 <ul>
@@ -138,8 +149,11 @@
     <li>Failed steps expand automatically so the diagnostic is in front of you on open.</li>
     <li><strong>Re-run</strong> in the toolbar replays the probe.</li>
     <li><strong>Copy log</strong> puts the whole transcript onto the clipboard for pasting into a support email.</li>
+    <li><strong>Email log to support</strong> opens a pre-filled message with the transcript attached.</li>
     <li><strong>Open support site</strong> opens https://nocentral.github.io in Safari.</li>
 </ul>
+
+<p>Leaving NoCentral to send that email (or open the support site) no longer logs you out — see <strong>Keep session on switch</strong> under Settings.</p>
 
 <h3>Fallback VC IP</h3>
 
@@ -200,15 +214,17 @@
 
 <h3>Loading indicators</h3>
 
-<p>A thin three-stage progress strip runs along the top of the screen during loads:</p>
+<p>A thin progress strip runs along the top of the screen during loads. Each stage has its own colour and fills in turn; a light haptic pulses once per completed call, in step with the bar. The two core stages always run; the rest only run when their toggle is enabled in Settings.</p>
 
 <ol>
-    <li><strong>Light blue — Critical path.</strong> Cluster summary, firmware, clients, associations, and per-AP details. When this finishes the app is fully usable.</li>
-    <li><strong>Mid blue — Enrichment.</strong> Channel quality, per-AP statistics, RF neighbours, performance metrics, and ancillary info.</li>
-    <li><strong>Dark blue — Spectrum data.</strong> Per-AP spectrum scans for Channel View and Channel Detail. Only runs when <strong>Load Spectrum Data</strong> is enabled in Settings (on by default).</li>
+    <li><strong>Core — light blue.</strong> Cluster summary, firmware, clients, associations, and per-AP details. When this finishes the app is fully usable.</li>
+    <li><strong>Detail — mid blue.</strong> Channel quality, per-AP statistics, RF neighbours, performance metrics, wired-port data, and ancillary info.</li>
+    <li><strong>Spectrum — amber.</strong> Per-AP spectrum scans for Channel View and Channel Detail. Optional (<strong>Load Spectrum Data</strong>, on by default).</li>
+    <li><strong>BLE — blue.</strong> Per-AP Bluetooth discovery. Optional (<strong>Load BLE Data</strong>, off by default).</li>
+    <li><strong>UCC — green.</strong> Voice/Video (Wi-Fi calling, meeting apps). Optional (<strong>Load UCC Data</strong>, off by default), and a quick final pass.</li>
 </ol>
 
-<p>You can navigate freely while loading — views populate as their data arrives.</p>
+<p>The optional-stage colours are mirrored as a small dot next to each toggle in Settings, so the colour on the bar tells you which feature is loading. You can navigate freely while loading — views populate as their data arrives.</p>
 
 <h2>Clients &amp; APs (hierarchical tree)</h2>
 
@@ -447,6 +463,54 @@
     Radios configured as Air Monitor show a callout explaining why no FFT data is produced. Channels that returned limited-scan sentinel zeros suppress the misleading Quality and SNIR bars rather than display them as red.
 </div>
 
+<h2>Voice &amp; Video (UCC)</h2>
+
+<p>A live view of the Unified-Communications sessions your cluster can see — Wi-Fi calls, FaceTime, and meeting apps (Teams, Zoom, Meet). It's <strong>off by default</strong>; enable <strong>Load UCC Data</strong> in Settings to populate it. Reached from the sidebar (iPad) → Analyze, or iPhone Settings → Tools.</p>
+
+<h3>What it shows</h3>
+
+<p>Sessions are grouped into three sections:</p>
+
+<ul>
+    <li><strong>Now</strong> — an active call/session in progress. A green phone (or video) icon, the app/carrier, the serving AP, and a quality read-out ("audio good", etc.).</li>
+    <li><strong>Registered</strong> — Wi-Fi calling is set up and the IPsec tunnel is up, but no call is in progress. The device is ready to place a call over Wi-Fi; this state doesn't drain battery.</li>
+    <li><strong>Recent</strong> — recently classified UC clients that are now idle.</li>
+</ul>
+
+<p>NoCentral tells an <em>active</em> call from an <em>idle</em> registration by comparing the IPsec tunnel's traffic counters against the previous refresh, cross-checked with call-detail records and datapath sessions on the serving AP.</p>
+
+<h3>What you can do</h3>
+
+<ul>
+    <li>Tap a row to open its detail card (carrier/app, codecs where visible, the serving AP, and the underlying signals).</li>
+    <li>Pull down to re-evaluate without a full cluster reload.</li>
+</ul>
+
+<h2>BLE Discovery</h2>
+
+<p>Surfaces the Bluetooth Low-Energy environment each AP can hear — asset tags and beacons. <strong>Off by default</strong>; enable <strong>Load BLE Data</strong> in Settings. When on, two things appear:</p>
+
+<ul>
+    <li>In the <strong>Clients &amp; APs tree</strong>, each AP gains a <strong>BLE radio</strong> node listing the beacon-class devices that AP currently hears.</li>
+    <li>A dedicated <strong>BLE Discovery</strong> browser (Settings) aggregates every heard device across the whole cluster, de-duplicated by device address, with vendor attribution and the strongest-hearing AP.</li>
+</ul>
+
+<p>Generic beacons that broadcast from rotating (private) addresses are attributed by their Bluetooth-SIG company ID rather than a hardware vendor; named asset tags (e.g. Aruba tags) are identified directly. The cluster's own AP radios are filtered out of the results.</p>
+
+<h2>Naming &amp; icons (Customize)</h2>
+
+<p>Any client or BLE device detail card includes a <strong>Customize</strong> section that lets you pin a friendly name and an icon to that device. The topology tree picks the change up immediately.</p>
+
+<ul>
+    <li><strong>Name</strong> — type a label; it commits when you tap Done or leave the field (not per keystroke). Leave it blank to fall back to the auto-derived name.</li>
+    <li><strong>Icon</strong> — opens a sectioned icon grid; the choice applies straight away.</li>
+    <li><strong>Reset to default</strong> — clears the custom name and icon.</li>
+</ul>
+
+<div class="notice">
+    Custom names and icons are saved against the device's MAC address. They persist as long as the device keeps a stable address and name — a device using a private (rotating) MAC will lose its custom label when the address next changes.
+</div>
+
 <h2>Access Points (legacy list)</h2>
 
 <p>Card grid of every AP — one column on iPhone, two on iPad. Each card shows name, badges (VC, Monitor, constrained-model warning), client count, IP, serial, model, PoE draw (current + average), per-radio channels (colour-coded by band), uptime, and uplink port. A Cluster PoE summary row totals current and average watts. Offline APs sit in a dimmed section at the bottom.</p>
@@ -568,6 +632,31 @@
 
 <p>The capability database is bundled with the app and refreshed automatically in the background when a newer version is published.</p>
 
+<h2>Event Log</h2>
+
+<p>A per-site record of what happened during your connection sessions — built for diagnosing intermittent problems after the fact. Open it from the <strong>site editor</strong> (next to Test API) or from <strong>Settings → Advanced Tuning → View Event Log</strong>. It keeps the current run plus the last few runs for the site.</p>
+
+<h3>What it captures</h3>
+
+<ul>
+    <li><strong>Connection events</strong> — connecting, connected, and any fall-back to the secondary VC IP (with the reason the primary failed).</li>
+    <li><strong>API failures</strong> — each failed controller call with the operation, the error, the load stage, and the run-up to it.</li>
+    <li><strong>Logout reasons</strong> — why a session ended: you disconnected, the inactivity timeout, the VC ended the session, or the app went to the background.</li>
+    <li><strong>App background/foreground</strong> — so a session that ended because the device was set down is explained, not mysterious.</li>
+    <li><strong>Load complete</strong> — a per-load summary: total API calls, per-stage timing and call counts, and any taps you made while it was loading.</li>
+</ul>
+
+<h3>What you can do</h3>
+
+<ul>
+    <li>Pick a run from the picker (this run, last run, or an earlier one) and expand any entry for detail.</li>
+    <li><strong>Copy log</strong> puts the run's transcript on the clipboard; <strong>Email log to support</strong> opens a pre-filled message; <strong>Open support site</strong> opens this site.</li>
+</ul>
+
+<div class="tip">
+    For deep troubleshooting, turn on <strong>Verbose API Trace</strong> (Settings → Advanced Tuning) — it records <em>every</em> call, not just failures. It's noisy, so leave it off for normal use.
+</div>
+
 <h2>Exports</h2>
 
 <p>Reports and CSV / script exports. Reached from the sidebar (iPad) → App → Exports, or from iPhone Settings → Tools → Exports.</p>
@@ -643,6 +732,15 @@
     <li><strong>Load Wired Port &amp; LLDP Data</strong> — on by default. After the main load completes, fetches port speed, duplex, and LLDP neighbour data for every AP with a wired interface. Disable on large networks if pure load speed matters more than wired detail.</li>
 </ul>
 
+<h3>Voice/Video &amp; BLE data</h3>
+
+<ul>
+    <li><strong>Load UCC Data</strong> — off by default. Runs a final, quick set of calls to populate the Voice &amp; Video view (Wi-Fi calls, meeting apps). Shows as the green stage on the load bar.</li>
+    <li><strong>Load BLE Data</strong> — off by default. Runs a per-AP Bluetooth scan to populate BLE Discovery. Shows as the blue stage on the load bar.</li>
+</ul>
+
+<p>Each optional-load toggle (Spectrum, BLE, UCC) carries a small colour dot matching its segment on the load bar, so you can tell at a glance which stage a colour represents.</p>
+
 <h3>Device Icons</h3>
 
 <p>Tap <strong>Device Icon Rules</strong> to open the rule editor. Each rule maps a hostname keyword to an SF Symbol; the first match wins. Rules sort alphabetically. In the editor:</p>
@@ -658,9 +756,10 @@
 <h3>Advanced Tuning</h3>
 
 <ul>
-    <li><strong>API Call Gap</strong> — minimum delay between consecutive API calls, 0–150 ms in 50 ms steps. Saved per site. Default 0 ms — most clusters run cleanly there. 50 ms is automatically applied for Aruba Central-managed clusters. Increase if you're seeing API errors below.</li>
-    <li><strong>Last load timing</strong> — a one-line summary of the three load stages (critical / detail / spectrum).</li>
-    <li><strong>Error log</strong> — every API error this session. Empty means a clean run. Cleared on reconnect.</li>
+    <li><strong>API Call Gap</strong> — minimum delay between consecutive API calls, 0–150 ms in 50 ms steps. Saved per site. Default 0 ms — most clusters run cleanly there. 50 ms is automatically applied for Aruba Central-managed clusters. Increase if you're seeing errors in the Event Log.</li>
+    <li><strong>View Event Log</strong> — opens the per-site Event Log (above), showing the live error count for this session. Replaces the old inline error list and load-timing line — that detail now lives in the log's "Load complete" entry.</li>
+    <li><strong>Keep session on switch</strong> — how long NoCentral keeps your session alive when you briefly leave the app (switch apps, glance at a notification) before logging out for security. 10 sec / 30 sec / 1 min / 2 min / 5 min, default 30 sec. The 14-minute inactivity timeout still applies.</li>
+    <li><strong>Verbose API Trace</strong> — when on, logs every API call to the Event Log, not just failures. For chasing intermittent issues; noisy, so off by default.</li>
 </ul>
 
 <h3>Experimental</h3>
@@ -683,6 +782,9 @@
 <tr><td>RF Neighbors</td><td>Sidebar → Monitor</td><td>Tab bar</td></tr>
 <tr><td>Search</td><td>Sidebar → Monitor</td><td>(via tree search)</td></tr>
 <tr><td>RF Locator</td><td>Sidebar → Monitor (when enabled)</td><td>Settings → Experimental → RF Location</td></tr>
+<tr><td>Voice &amp; Video (UCC)</td><td>Sidebar → Analyze</td><td>Settings → Tools</td></tr>
+<tr><td>BLE Discovery</td><td>Sidebar → App / Settings</td><td>Settings</td></tr>
+<tr><td>Event Log</td><td>Site editor / Settings → Advanced Tuning</td><td>Site editor / Settings → Advanced Tuning</td></tr>
 <tr><td>Clients (legacy)</td><td>Sidebar → Legacy</td><td>Settings → Legacy Views</td></tr>
 <tr><td>Access Points (legacy)</td><td>Sidebar → Legacy</td><td>Settings → Legacy Views</td></tr>
 <tr><td>Channel Quality (legacy)</td><td>Sidebar → Legacy</td><td>Settings → Legacy Views</td></tr>
@@ -704,7 +806,7 @@
 
 <ul>
     <li>Run <strong>Test API</strong> from the site editor first. It tells you exactly where the problem is: network, REST, auth, or firmware.</li>
-    <li>Check <strong>Settings → Advanced Tuning → Error Log</strong> — if it's populated, increase the API Call Gap in 50 ms steps until the load is clean.</li>
+    <li>Check <strong>Settings → Advanced Tuning → View Event Log</strong> — if it shows API errors, increase the API Call Gap in 50 ms steps until the load is clean. The log also records logout reasons and fallback use, and can be emailed to support.</li>
     <li>If the VC IP stops responding entirely after a cluster reboot, you've probably hit the Aruba floating-IP rebind failure. Configure a fallback VC IP on the site, or temporarily switch the site address to any individual AP's DHCP IP.</li>
 </ul>
 
